@@ -10,9 +10,9 @@ class mHome extends CI_Model
         }
 
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
 
         $branch = $this->session->userdata('user_branch');
@@ -28,9 +28,9 @@ class mHome extends CI_Model
     public function getNoBkb($depo, $tanggal)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $branch = $this->session->userdata('user_branch');
         $query = $this->db->query("SELECT a.`szDocId`, a.`szRefDocId` FROM $base.`dms_inv_docstockoutsupplier` a
@@ -48,9 +48,9 @@ class mHome extends CI_Model
     public function getWaterin($btbNo, $varian, $transaksi)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $depo = $this->session->userdata('user_lokasi');
         //curdate() diganti tanggal 13 sept 2021
@@ -149,9 +149,9 @@ class mHome extends CI_Model
     function getWiBtb($ref, $depo)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $tglStart = date('Y-m-d', strtotime('-2 days'));
         $tglFinish = date('Y-m-d');
@@ -177,9 +177,9 @@ class mHome extends CI_Model
     public function getWaterinBkb($btbNo, $varian, $transaksi)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $depo = $this->session->userdata('user_lokasi');
         //curdate() diganti tanggal 13 sept 2021
@@ -252,9 +252,9 @@ class mHome extends CI_Model
     public function getGudang()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -262,7 +262,7 @@ class mHome extends CI_Model
             $namedept = 'tvip';
         }
         $this->db2 = $this->load->database($namedept, true);
-        $query = $this->db2->query("SELECT * FROM dms.`dms_inv_warehouse` c WHERE c.szBranchId = '" . $this->session->userdata('user_branch') . "'");
+        $query = $this->db2->query("SELECT * FROM dmstesting.`dms_inv_warehouse` c WHERE c.szBranchId = '" . $this->session->userdata('user_branch') . "'");
         return $query->result();
         $this->db2->close();
     }
@@ -270,9 +270,9 @@ class mHome extends CI_Model
     public function getTipeStok()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -280,7 +280,7 @@ class mHome extends CI_Model
             $namedept = 'tvip';
         }
         $this->db2 = $this->load->database($namedept, true);
-        $query = $this->db2->query("SELECT a.szId, a.szName FROM dms.`dms_inv_stocktype` a");
+        $query = $this->db2->query("SELECT a.szId, a.szName FROM dmstesting.`dms_inv_stocktype` a");
         return $query->result();
         $this->db2->close();
     }
@@ -288,9 +288,9 @@ class mHome extends CI_Model
     public function getCarrier()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -298,7 +298,7 @@ class mHome extends CI_Model
             $namedept = 'tvip';
         }
         $this->db2 = $this->load->database($namedept, true);
-        $query = $this->db2->query("SELECT a.`szId`, a.`szName` FROM dms.`dms_inv_carrier` a");
+        $query = $this->db2->query("SELECT a.`szId`, a.`szName` FROM dmstesting.`dms_inv_carrier` a");
         return $query->result();
         $this->db2->close();
     }
@@ -306,9 +306,9 @@ class mHome extends CI_Model
     public function getProduk()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -316,7 +316,7 @@ class mHome extends CI_Model
             $namedept = 'tvip';
         }
         $this->db2 = $this->load->database($namedept, true);
-        $query = $this->db2->query("SELECT a.`szId`, a.`szName` FROM dms.`dms_inv_product` a
+        $query = $this->db2->query("SELECT a.`szId`, a.`szName` FROM dmstesting.`dms_inv_product` a
         ORDER BY a.`szName`");
         return $query->result();
         $this->db2->close();
@@ -325,9 +325,9 @@ class mHome extends CI_Model
     public function getSupplier()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -335,7 +335,7 @@ class mHome extends CI_Model
             $namedept = 'tvip';
         }
         $this->db2 = $this->load->database($namedept, true);
-        $query = $this->db2->query("SELECT a.`szId`, a.`szName` FROM dms.`dms_ap_supplier` a
+        $query = $this->db2->query("SELECT a.`szId`, a.`szName` FROM dmstesting.`dms_ap_supplier` a
         WHERE a.`szId` NOT IN ('123', 'test', 'testinggg123')");
         return $query->result();
         $this->db2->close();
@@ -344,9 +344,9 @@ class mHome extends CI_Model
     public function getRefBtb($depo, $stockTipeId)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`refOld` FROM $base.`mdbarefdoc` a
         WHERE a.`refDepo` = '$depo' AND a.`refDocType` = '$stockTipeId'");
@@ -356,9 +356,9 @@ class mHome extends CI_Model
     function getWaterout($btbNo, $lokasi, $varian)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $this->db2 = $this->load->database('waterout', true);
         if ($varian == 'GLN') {
@@ -405,9 +405,9 @@ class mHome extends CI_Model
     function getDriverDistribusi($depo)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -415,7 +415,7 @@ class mHome extends CI_Model
             $namedept = 'tvip';
         }
         $this->db2 = $this->load->database($namedept, true);
-        $query = $this->db2->query("SELECT * FROM dms.`dms_pi_employee` a
+        $query = $this->db2->query("SELECT * FROM dmstesting.`dms_pi_employee` a
         WHERE a.`szBranchId` IN ($depo) -- AND a.`szId` LIKE '$depo-%'
         GROUP BY a.`szId`");
         return $query->result();
@@ -425,9 +425,9 @@ class mHome extends CI_Model
     function getVehicleDistribusi($depo)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -435,7 +435,7 @@ class mHome extends CI_Model
             $namedept = 'tvip';
         }
         $this->db2 = $this->load->database($namedept, true);
-        $query = $this->db2->query("SELECT a.`szId`, a.`szPoliceNo` FROM dms.`dms_inv_vehicle` a
+        $query = $this->db2->query("SELECT a.`szId`, a.`szPoliceNo` FROM dmstesting.`dms_inv_vehicle` a
         WHERE a.`szBranchId` IN ($depo)");
         return $query->result();
         $this->db2->close();
@@ -444,9 +444,9 @@ class mHome extends CI_Model
     function getCekData()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`refOld` FROM $base.`mdbaRefDoc` a
         WHERE a.`refDocType` = 'DMSDocStockMorph' AND a.`refDepo` = '" . $this->session->userdata('user_branch') . "' AND a.`refTanggal` >= CURDATE() - INTERVAL 3 DAY AND a.`refTanggal` <= CURDATE() + INTERVAL 1 DAY");
@@ -456,9 +456,9 @@ class mHome extends CI_Model
     function getMorphing($referensi)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -486,9 +486,9 @@ class mHome extends CI_Model
     function cekDataBtbDepot()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`refOld` FROM $base.`mdbaRefDoc` a
         WHERE a.`refDocType` = 'DMSDocStockInBranch' AND a.`refDepo` = '" . $this->session->userdata('user_branch') . "' AND a.`refTanggal` >= CURDATE() - INTERVAL 3 DAY AND a.`refTanggal` <= CURDATE() + INTERVAL 1 DAY");
@@ -519,9 +519,9 @@ class mHome extends CI_Model
     function cekDataBkbDepot()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $depo = $this->session->userdata('user_branch');
         $query = $this->db->query("SELECT * FROM $base.`mdbarefdoc` a
@@ -536,9 +536,9 @@ class mHome extends CI_Model
     function getBtbDepot($ref)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -576,9 +576,9 @@ class mHome extends CI_Model
     function getBtbDist($ref, $tanggal)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -620,9 +620,9 @@ class mHome extends CI_Model
     function getBkbDepot($ref)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -657,9 +657,9 @@ class mHome extends CI_Model
     function getDepo()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -668,7 +668,7 @@ class mHome extends CI_Model
         }
 
         $this->db2 = $this->load->database($namedept, true);
-        $query = $this->db2->query("SELECT a.`szId`, a.`szName` FROM dms.`dms_sm_branch` a
+        $query = $this->db2->query("SELECT a.`szId`, a.`szName` FROM dmstesting.`dms_sm_branch` a
             GROUP BY a.`szId`    
         ");
         return $query->result();
@@ -679,9 +679,9 @@ class mHome extends CI_Model
     {
         $tglStart = date('Y-m-d', strtotime('-1 days'));
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $depo = $this->session->userdata('user_branch');
         $query = $this->db->query("SELECT a.`szDocId`, d.`szDocId` AS noBkb, b.`szName` AS pengemudi, c.`szName` AS kendaraan, e.`Status` FROM $base.`dms_sd_docproductrequest` a
@@ -698,9 +698,9 @@ class mHome extends CI_Model
     function cekDataBkbDist()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $depo = $this->session->userdata('user_branch');
         $query = $this->db->query("SELECT * FROM $base.`mdbarefdoc` a
@@ -715,9 +715,9 @@ class mHome extends CI_Model
     function getBkbDist($referensi)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -757,9 +757,9 @@ class mHome extends CI_Model
     function getBtuTrans($depo, $tanggal)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`dtmDoc`, a.`szDocId`, a.`szEmployeeId`, b.`szName` AS employee, FORMAT(FLOOR(a.`decAmountControl`),0) AS decAmountControl
         FROM $base.`dms_cas_doccashtempin` a
@@ -776,9 +776,9 @@ class mHome extends CI_Model
     function getBkuTrans($depo, $tanggal)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`dtmDoc`, a.`szDocId`, a.`szEmployeeId`, b.`szName` AS employee, FORMAT(FLOOR(a.`decAmountControl`),0) AS decAmountControl
         FROM $base.`dms_cas_doccashtempout` a
@@ -795,9 +795,9 @@ class mHome extends CI_Model
     function cashierAuto($depo)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT SUM(a.`staggingAmount`) AS staggingAmount, c.rit_driver, a.`driverNik`, a.`driverMesinId`, a.`staggingDate`, a.`staggingTx`, a.`staggingLoc`, a.`staggingLoc`,
         a.`staggingStatus`, b.`szName`, c.`nopol`, c.`kode_driver`, b.`szBranchId`,GROUP_CONCAT(a.`staggingTx` SEPARATOR ',') AS txId 
@@ -826,9 +826,9 @@ class mHome extends CI_Model
     function cashierSettlement($depo)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`szId` AS branch, a.`szName` AS branchName, b.`szId` AS company, b.`szName` AS companyName FROM $base.`dms_sm_branch` a
         LEFT JOIN $base.`dms_sm_company` b ON a.`szCompanyId` = b.`szId`
@@ -843,9 +843,9 @@ class mHome extends CI_Model
     function getDataSjp($depo, $tanggal)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`szDocId`, a.`szDocDO`, b.`szName`, a.`szCarrier` FROM $base.`dms_inv_docstockoutcustomer` a
         LEFT JOIN $base.`dms_ar_customer` b ON a.`szPartyId` = b.`szId`
@@ -860,9 +860,9 @@ class mHome extends CI_Model
     function getDataTBG($depo, $tanggal)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`szDocId`, a.`dtmDoc`, a.`szWarehouseId`, b.`szName`, a.`szDocStatus` FROM $base.`dms_inv_docwarehouseclosing` a
         LEFT JOIN $base.`dms_inv_warehouse` b ON a.`szWarehouseId` = b.`szId`

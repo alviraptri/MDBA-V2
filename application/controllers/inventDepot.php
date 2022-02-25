@@ -13,12 +13,6 @@ class inventDepot extends CI_Controller
     }
 
     //master
-    function getBranchName()
-    {
-        $id = $this->input->post('id');
-        $data = $this->mInventDepot->getBranchName($id);
-        echo json_encode($data);
-    }
 
     function getSoName()
     {
@@ -39,20 +33,6 @@ class inventDepot extends CI_Controller
     {
         $id = $this->input->post('id');
         $data = $this->mInventDepot->getEmployeeIn($id);
-        echo json_encode($data);
-    }
-
-    function getEmployeeName()
-    {
-        $id = $this->input->post('pengemudi');
-        $data = $this->mInventDepot->getEmployeeName($id);
-        echo json_encode($data);
-    }
-
-    function getVehicleName()
-    {
-        $id = $this->input->post('kendaraan');
-        $data = $this->mInventDepot->getVehicleName($id);
         echo json_encode($data);
     }
 
@@ -99,9 +79,9 @@ class inventDepot extends CI_Controller
     function simpanManual()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $depo = $this->session->userdata('user_branch');
 
@@ -129,7 +109,7 @@ class inventDepot extends CI_Controller
         $updateCount = array('intLastCounter' => $counter);
         $whereCount = array('szId' => $id);
         $counterUpdate = $this->mInventDepot->updateData($whereCount, $updateCount, $base . '.dms_sm_counter');
-        $counterUpdateDms = $this->mInventDepot->updateDms($whereCount, $updateCount, 'dms.dms_sm_counter');
+        $counterUpdateDms = $this->mInventDepot->updateDms($whereCount, $updateCount, 'dmstesting.dms_sm_counter');
 
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'ASA';
@@ -143,8 +123,8 @@ class inventDepot extends CI_Controller
             'refTanggal' => $tgl,
             'refDepo' => $this->session->userdata('user_branch'),
             'refDocType' => 'DMSDocStockInBranch',
-            'refUserAdd' => 'mdba-'.$this->session->userdata('user_nik'),
-            'refUserUpdate' => 'mdba-'.$this->session->userdata('user_nik'),
+            'refUserAdd' => 'mdba-' . $this->session->userdata('user_nik'),
+            'refUserUpdate' => 'mdba-' . $this->session->userdata('user_nik'),
             'refDateAdd' => date('Y-m-d H:i:s'),
             'refDateUpdate' => date('Y-m-d H:i:s')
         );
@@ -163,14 +143,14 @@ class inventDepot extends CI_Controller
             'szBranchId' => $this->session->userdata('user_branch'),
             'szCompanyId' => $namedept,
             'szDocStatus' => 'Applied',
-            'szUserCreatedId' => 'mdba-'.$this->session->userdata('user_nik'),
-            'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_nik'),
+            'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+            'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
             'dtmCreated' => date('Y-m-d H:i:s'),
             'dtmLastUpdated' => date('Y-m-d H:i:s'),
             'szDescription' => $keterangan
         );
         $dataBtbDepot = $this->mInventDepot->simpanData($btbDepot, $base . '.dms_inv_docstockinbranch');
-        $dataBtbDepotDms = $this->mInventDepot->simpanDms($btbDepot, 'dms.dms_inv_docstockinbranch');
+        $dataBtbDepotDms = $this->mInventDepot->simpanDms($btbDepot, 'dmstesting.dms_inv_docstockinbranch');
 
         $getProduk = '';
         for ($i = 0; $i < count($produk); $i++) {
@@ -183,7 +163,7 @@ class inventDepot extends CI_Controller
                 'szUomId' => $satuan[$i]
             );
             $depotDetail = $this->mInventDepot->simpanData($detDepot, $base . '.dms_inv_docstockinbranchitem');
-            $depotDetailDms = $this->mInventDepot->simpanDms($detDepot, 'dms.dms_inv_docstockinbranchitem');
+            $depotDetailDms = $this->mInventDepot->simpanDms($detDepot, 'dmstesting.dms_inv_docstockinbranchitem');
 
             $historyDepot = array(
                 'iId' => $this->uuid->v4(),
@@ -197,13 +177,13 @@ class inventDepot extends CI_Controller
                 'dtmTransaction' => $tgl,
                 'szTrnId' => 'DMSDocStockInBranch',
                 'szDocId' => $noBtb,
-                'szUserCreatedId' => 'mdba-'.$this->session->userdata('user_nik'),
-                'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_nik'),
+                'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+                'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
                 'dtmCreated' => date('Y-m-d H:i:s'),
                 'dtmLastUpdated' => date('Y-m-d H:i:s')
             );
             $depotHistory = $this->mInventDepot->simpanData($historyDepot, $base . '.dms_inv_stockHistory');
-            $depotHistoryDms = $this->mInventDepot->simpanDms($historyDepot, 'dms.dms_inv_stockHistory');
+            $depotHistoryDms = $this->mInventDepot->simpanDms($historyDepot, 'dmstesting.dms_inv_stockHistory');
 
             $getProduk .= "'" . $produk[$i] . "',";
         }
@@ -219,7 +199,7 @@ class inventDepot extends CI_Controller
                 if ($value->szProductId == $produk[$i]) {
                     $updOnHand = array(
                         'decQtyOnHand' => (int)$value->decQtyOnHand + (int)$qty[$i],
-                        'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_nik'),
+                        'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
                         'dtmLastUpdated' => date('Y-m-d H:i:s')
                     );
                     $whereOnHand = array(
@@ -231,7 +211,7 @@ class inventDepot extends CI_Controller
                 }
             }
             $onHandUpdate = $this->mInventDepot->updateData($whereOnHand, $updOnHand, $base . '.dms_inv_stockonhand');
-            $onHandUpdateDms = $this->mInventDepot->updateDms($whereOnHand, $updOnHand, 'dms.dms_inv_stockonhand');
+            $onHandUpdateDms = $this->mInventDepot->updateDms($whereOnHand, $updOnHand, 'dmstesting.dms_inv_stockonhand');
         }
 
         if ($counterUpdate == 'true' && $referensi == 'true' && $dataBtbDepot == 'true' && $depotDetail == 'true' && $depotHistory == 'true' && $onHandUpdate == 'true') {
@@ -276,9 +256,9 @@ class inventDepot extends CI_Controller
     function simpanBkb()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $ref = $this->input->post('referensi');
         $tgl = $this->input->post('tgl');
@@ -340,7 +320,7 @@ class inventDepot extends CI_Controller
                 $updateCount = array('intLastCounter' => $counter);
                 $whereCount = array('szId' => $id);
                 $counterUpdate = $this->mInventDist->updateData($whereCount, $updateCount, $base . '.dms_sm_counter');
-                $counterDms = $this->mInventDist->updateDms($whereCount, $updateCount, 'dms.dms_sm_counter');
+                $counterDms = $this->mInventDist->updateDms($whereCount, $updateCount, 'dmstesting.dms_sm_counter');
 
                 if ($status != '-' && $ref != '-') {
                     $refHistory = array(
@@ -360,8 +340,8 @@ class inventDepot extends CI_Controller
                         'refTanggal' => $tgl,
                         'refDepo' => $this->session->userdata('user_branch'),
                         'refDocType' => 'DMSDocStockOutBranch',
-                        'refUserAdd' => 'mdba-'.$this->session->userdata('user_nik'),
-                        'refUserUpdate' => 'mdba-'.$this->session->userdata('user_nik'),
+                        'refUserAdd' => 'mdba-' . $this->session->userdata('user_nik'),
+                        'refUserUpdate' => 'mdba-' . $this->session->userdata('user_nik'),
                         'refDateAdd' => date('Y-m-d H:i:s'),
                         'refDateUpdate' => date('Y-m-d H:i:s')
                     );
@@ -380,14 +360,14 @@ class inventDepot extends CI_Controller
                         'szBranchId' => $this->session->userdata('user_branch'),
                         'szCompanyId' => $namedept,
                         'szDocStatus' => 'Applied',
-                        'szUserCreatedId' => 'mdba-'.$this->session->userdata('user_nik'),
-                        'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_nik'),
+                        'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+                        'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
                         'dtmCreated' => date('Y-m-d H:i:s'),
                         'dtmLastUpdated' => date('Y-m-d H:i:s'),
                         'szDescription' => $keterangan
                     );
                     $dataBkbDepot = $this->mInventDepot->simpanData($bkbDepot, $base . '.dms_inv_docstockoutbranch');
-                    $dataBkbDms = $this->mInventDepot->simpanDms($bkbDepot, 'dms.dms_inv_docstockoutbranch');
+                    $dataBkbDms = $this->mInventDepot->simpanDms($bkbDepot, 'dmstesting.dms_inv_docstockoutbranch');
 
                     $getProduk = '';
                     for ($i = 0; $i < count($kode); $i++) {
@@ -400,7 +380,7 @@ class inventDepot extends CI_Controller
                             'szUomId' => $satuan[$i]
                         );
                         $depotDetail = $this->mInventDepot->simpanData($detDepot, $base . '.dms_inv_docstockoutbranchitem');
-                        $depotDetailDms = $this->mInventDepot->simpanDms($detDepot, 'dms.dms_inv_docstockoutbranchitem');
+                        $depotDetailDms = $this->mInventDepot->simpanDms($detDepot, 'dmstesting.dms_inv_docstockoutbranchitem');
 
                         $historyDepot = array(
                             'iId' => $this->uuid->v4(),
@@ -414,13 +394,13 @@ class inventDepot extends CI_Controller
                             'dtmTransaction' => $tgl,
                             'szTrnId' => 'DMSDocStockOutBranch',
                             'szDocId' => $bkb,
-                            'szUserCreatedId' => 'mdba-'.$this->session->userdata('user_nik'),
-                            'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_nik'),
+                            'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+                            'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
                             'dtmCreated' => date('Y-m-d H:i:s'),
                             'dtmLastUpdated' => date('Y-m-d H:i:s')
                         );
                         $depotHistory = $this->mInventDepot->simpanData($historyDepot, $base . '.dms_inv_stockHistory');
-                        $depotHistoryDms = $this->mInventDepot->simpanDms($historyDepot, 'dms.dms_inv_stockHistory');
+                        $depotHistoryDms = $this->mInventDepot->simpanDms($historyDepot, 'dmstesting.dms_inv_stockHistory');
 
                         $getProduk .= "'" . $kode[$i] . "',";
                     }
@@ -438,7 +418,7 @@ class inventDepot extends CI_Controller
                             if ($value->szProductId == $kode[$i]) {
                                 $updOnHand = array(
                                     'decQtyOnHand' => $value->decQtyOnHand - (int)$qty[$i],
-                                    'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_nik'),
+                                    'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
                                     'dtmLastUpdated' => date('Y-m-d H:i:s')
                                 );
                                 $whereOnHand = array(
@@ -451,7 +431,7 @@ class inventDepot extends CI_Controller
                         }
                         // echo "<pre>".var_export($updOnHand, true)."</pre>";
                         $onHandUpdate = $this->mInventDepot->updateData($whereOnHand, $updOnHand, $base . '.dms_inv_stockonhand');
-                        $onHandUpdateDms = $this->mInventDepot->updateDms($whereOnHand, $updOnHand, 'dms.dms_inv_stockonhand');
+                        $onHandUpdateDms = $this->mInventDepot->updateDms($whereOnHand, $updOnHand, 'dmstesting.dms_inv_stockonhand');
                         // print_r($depotHistory);
                     }
                 } else {
@@ -465,8 +445,8 @@ class inventDepot extends CI_Controller
                             'szReportedAsId' => $this->session->userdata('user_branch'),
                             'decQtyOnHand' => '0',
                             'szUomId' => $key->szUomId,
-                            'szUserCreatedId' => 'mdba-'.$this->session->userdata('user_nik'),
-                            'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_nik'),
+                            'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+                            'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
                             'dtmCreated' => date('Y-m-d H:i:s'),
                             'dtmLastUpdated' => date('Y-m-d H:i:s')
                         );
@@ -563,9 +543,9 @@ class inventDepot extends CI_Controller
     function editBkb($document)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $depo = $this->session->userdata('user_branch');
 
@@ -590,9 +570,9 @@ class inventDepot extends CI_Controller
     function updateBkb()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $depo = $this->session->userdata('user_branch');
 
@@ -628,7 +608,7 @@ class inventDepot extends CI_Controller
             $updCountBkb = array('intLastCounter' => $countBkb);
             $whereCountBkb = array('szId' => $id);
             $countUpdBkb = $this->mInventDepot->updateData($whereCountBkb, $updCountBkb, $base . '.dms_sm_counter');
-            $countUpdBkbDms = $this->mInventDepot->updateDms($whereCountBkb, $updCountBkb, 'dms.dms_sm_counter');
+            $countUpdBkbDms = $this->mInventDepot->updateDms($whereCountBkb, $updCountBkb, 'dmstesting.dms_sm_counter');
 
             $adj = 'ADJ' . $depo . 'COU';
             $adjustment = $this->mInventDepot->getId($adj);
@@ -637,7 +617,7 @@ class inventDepot extends CI_Controller
             $updCountAdj = array('intLastCounter' => $countAdj);
             $whereCountAdj = array('szId' => $adj);
             $countUpdAdj = $this->mInventDepot->updateData($whereCountAdj, $updCountAdj, $base . '.dms_sm_counter');
-            $countUpdAdjDms = $this->mInventDepot->updateDms($whereCountAdj, $updCountAdj, 'dms.dms_sm_counter');
+            $countUpdAdjDms = $this->mInventDepot->updateDms($whereCountAdj, $updCountAdj, 'dmstesting.dms_sm_counter');
 
             $old = $this->mInventDepot->editBkb($bkbOld);
             $prodOld = '';
@@ -661,7 +641,7 @@ class inventDepot extends CI_Controller
                 );
 
                 $historyBkbOld = $this->mInventDepot->updateData($updHistoryOld, $whereHistoryOld, $base . '.dms_inv_stockHistory');
-                $historyBkbOldDms = $this->mInventDepot->updateDms($updHistoryOld, $whereHistoryOld, 'dms.dms_inv_stockHistory');
+                $historyBkbOldDms = $this->mInventDepot->updateDms($updHistoryOld, $whereHistoryOld, 'dmstesting.dms_inv_stockHistory');
 
                 $updDetOldBkb = array(
                     'decQty' => -$value->decQty,
@@ -674,7 +654,7 @@ class inventDepot extends CI_Controller
                 );
 
                 $detOldBkbUpd = $this->mInventDepot->updateData($whereDetOldBkb, $updDetOldBkb, $base . '.dms_inv_docstockoutbranchitem');
-                $detOldBkbUpdDms = $this->mInventDepot->updateDms($whereDetOldBkb, $updDetOldBkb, 'dms.dms_inv_docstockoutbranchitem');
+                $detOldBkbUpdDms = $this->mInventDepot->updateDms($whereDetOldBkb, $updDetOldBkb, 'dmstesting.dms_inv_docstockoutbranchitem');
 
                 $updOldBkb = array(
                     'szDocId' => $bkb
@@ -684,7 +664,7 @@ class inventDepot extends CI_Controller
                     'szDocId' => $bkbOld
                 );
                 $oldUpd = $this->mInventDepot->updateData($whereOldBkb, $updOldBkb, $base . '.dms_inv_docstockoutbranch');
-                $bkbOldUpd = $this->mInventDepot->updateDms($whereOldBkb, $updOldBkb, 'dms.dms_inv_docstockoutbranch');
+                $bkbOldUpd = $this->mInventDepot->updateDms($whereOldBkb, $updOldBkb, 'dmstesting.dms_inv_docstockoutbranch');
 
                 $detAdjustment = array(
                     'iId' => $this->uuid->v4(),
@@ -695,7 +675,7 @@ class inventDepot extends CI_Controller
                     'szUomId' => $value->szUomId
                 );
                 $adjDet = $this->mInventDepot->simpanData($detAdjustment, $base . '.dms_inv_docstockadjustmentitem');
-                $adjDetDms = $this->mInventDepot->simpanDms($detAdjustment, 'dms.dms_inv_docstockadjustmentitem');
+                $adjDetDms = $this->mInventDepot->simpanDms($detAdjustment, 'dmstesting.dms_inv_docstockadjustmentitem');
 
                 $intNum++;
             }
@@ -721,7 +701,7 @@ class inventDepot extends CI_Controller
                         }
                     }
                     $onHandUpdateOld = $this->mInventDepot->updateData($whereOnHandOld, $updOnHandOld, $base . '.dms_inv_stockonhand');
-                    $onHandUpdateOldDms = $this->mInventDepot->updateDms($whereOnHandOld, $updOnHandOld, 'dms.dms_inv_stockonhand');
+                    $onHandUpdateOldDms = $this->mInventDepot->updateDms($whereOnHandOld, $updOnHandOld, 'dmstesting.dms_inv_stockonhand');
                 }
             } else {
                 foreach ($old as $key) {
@@ -757,7 +737,7 @@ class inventDepot extends CI_Controller
                 'szAdjustmentId' => $bkb
             );
             $refDocAdj = $this->mInventDepot->simpanData($adjRefDoc, $base . '.dms_inv_stockadjustmentrefdoc');
-            $refDocAdjDms = $this->mInventDepot->simpanDms($adjRefDoc, 'dms.dms_inv_stockadjustmentrefdoc');
+            $refDocAdjDms = $this->mInventDepot->simpanDms($adjRefDoc, 'dmstesting.dms_inv_stockadjustmentrefdoc');
 
             $adjustmentHeader = array(
                 'iId' => $this->uuid->v4(),
@@ -776,7 +756,7 @@ class inventDepot extends CI_Controller
                 'dtmLastUpdated' => date('Y-m-d H:i:S')
             );
             $headAdj = $this->mInventDepot->simpanData($adjustmentHeader, $base . '.dms_inv_docstockadjustment');
-            $headAdjDms = $this->mInventDepot->simpanDms($adjustmentHeader, 'dms.dms_inv_docstockadjustment');
+            $headAdjDms = $this->mInventDepot->simpanDms($adjustmentHeader, 'dmstesting.dms_inv_docstockadjustment');
 
             $bkbDepot = array(
                 'iId' => $this->uuid->v4(),
@@ -798,7 +778,7 @@ class inventDepot extends CI_Controller
                 'szDescription' => $keterangan
             );
             $dataBkbDepot = $this->mInventDepot->simpanData($bkbDepot, $base . '.dms_inv_docstockoutbranch');
-            $dataBkbDepotDms = $this->mInventDepot->simpanDms($bkbDepot, 'dms.dms_inv_docstockoutbranch');
+            $dataBkbDepotDms = $this->mInventDepot->simpanDms($bkbDepot, 'dmstesting.dms_inv_docstockoutbranch');
 
             $getProduk = '';
             for ($i = 0; $i < count($kode); $i++) {
@@ -811,7 +791,7 @@ class inventDepot extends CI_Controller
                     'szUomId' => $satuan[$i]
                 );
                 $depotDetail = $this->mInventDepot->simpanData($detDepot, $base . '.dms_inv_docstockoutbranchitem');
-                $depotDetailDms = $this->mInventDepot->simpanDms($detDepot, 'dms.dms_inv_docstockoutbranchitem');
+                $depotDetailDms = $this->mInventDepot->simpanDms($detDepot, 'dmstesting.dms_inv_docstockoutbranchitem');
 
                 $historyDepot = array(
                     'iId' => $this->uuid->v4(),
@@ -831,7 +811,7 @@ class inventDepot extends CI_Controller
                     'dtmLastUpdated' => date('Y-m-d H:i:s')
                 );
                 $depotHistory = $this->mInventDepot->simpanData($historyDepot, $base . '.dms_inv_stockHistory');
-                $depotHistoryDms = $this->mInventDepot->simpanDms($historyDepot, 'dms.dms_inv_stockHistory');
+                $depotHistoryDms = $this->mInventDepot->simpanDms($historyDepot, 'dmstesting.dms_inv_stockHistory');
 
                 $getProduk .= "'" . $kode[$i] . "',";
             }
@@ -859,7 +839,7 @@ class inventDepot extends CI_Controller
                         }
                     }
                     $onHandUpdate = $this->mInventDepot->updateData($whereOnHand, $updOnHand, $base . '.dms_inv_stockonhand');
-                    $onHandUpdateDms = $this->mInventDepot->updateDms($whereOnHand, $updOnHand, 'dms.dms_inv_stockonhand');
+                    $onHandUpdateDms = $this->mInventDepot->updateDms($whereOnHand, $updOnHand, 'dmstesting.dms_inv_stockonhand');
                 }
             } else {
                 foreach ($sOnHand as $key) {
@@ -923,11 +903,6 @@ class inventDepot extends CI_Controller
 
     function simpanBtb()
     {
-        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
-        } else {
-            $base = 'mdbatvip';
-        }
         $bkb = $this->input->post('bkb');
         $tgl = $this->input->post('tgl');
         $asal = $this->input->post('asal');
@@ -943,11 +918,13 @@ class inventDepot extends CI_Controller
         $depo = $this->session->userdata('user_branch');
         if ($depo == '321' || $depo == '336' || $depo == '324') {
             $dept = 'ASA';
+            $base = 'dummymdbaasa';
         } else {
             $dept = 'TVIP';
+            $base = 'dummymdbatvip';
         }
 
-        if ($gudang == '' || $stok == '' || $pengemudi == '' || $kendaraan == '' || $kode[0] == '') {
+        if ($gudang == '' || $stok == '' || $pengemudi == '' || $kendaraan == '') {
             if ($bkb != '-') {
                 $this->session->set_flashdata('warning', 'Mohon Input Data Dengan Benar');
                 header('Location: ' . base_url('inventDepot/tambahBtb/' . $bkb));
@@ -983,8 +960,8 @@ class inventDepot extends CI_Controller
                 $counter = $this->mInventDist->getCounter($id);
                 $updateCount = array('intLastCounter' => $counter);
                 $whereCount = array('szId' => $id);
-                $counterUpdate = $this->mInventDist->updateData($whereCount, $updateCount, $base . '.dms_sm_counter');
-                $counterDms = $this->mInventDist->updateDms($whereCount, $updateCount, 'dms.dms_sm_counter');
+                $counterUpdate = $this->mInventDepot->updateData($whereCount, $updateCount, $base . '.dms_sm_counter');
+                // $counterDms = $this->mInventDepot->updateDms($whereCount, $updateCount, 'dmstesting.dms_sm_counter');
 
                 $refDoc = array(
                     'refId' => $btb,
@@ -992,8 +969,8 @@ class inventDepot extends CI_Controller
                     'refTanggal' => $tgl,
                     'refDepo' => $depo,
                     'refDocType' => 'DMSDocStockInBranch',
-                    'refUserAdd' => 'mdba-'.$this->session->userdata('user_nik'),
-                    'refUserUpdate' => 'mdba-'.$this->session->userdata('user_nik'),
+                    'refUserAdd' => 'mdba-' . $this->session->userdata('user_nik'),
+                    'refUserUpdate' => 'mdba-' . $this->session->userdata('user_nik'),
                     'refDateAdd' => date('Y-m-d H:i:s'),
                     'refDateUpdate' => date('Y-m-d H:i:s')
                 );
@@ -1012,64 +989,68 @@ class inventDepot extends CI_Controller
                     'szBranchId' => $this->session->userdata('user_branch'),
                     'szCompanyId' => $dept,
                     'szDocStatus' => 'Applied',
-                    'szUserCreatedId' => 'mdba-'.$this->session->userdata('user_nik'),
-                    'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_nik'),
+                    'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+                    'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
                     'dtmCreated' => date('Y-m-d H:i:s'),
                     'dtmLastUpdated' => date('Y-m-d H:i:s'),
                     'szDescription' => $keterangan
                 );
                 $btbHeader = $this->mInventDepot->simpanData($headBtb, $base . '.dms_inv_docstockinbranch');
-                $btbHeaderDms = $this->mInventDepot->simpanDms($headBtb, 'dms.dms_inv_docstockinbranch');
+                // $btbHeaderDms = $this->mInventDepot->simpanDms($headBtb, 'dmstesting.dms_inv_docstockinbranch');
 
                 $getProduk = '';
-                for ($j = 0; $j < count($kode); $j++) {
-                    $detBtb = array(
-                        'iId' => $this->uuid->v4(),
-                        'szDocId' => $btb,
-                        'intItemNumber' => $j,
-                        'szProductId' => $kode[$j],
-                        'decQty' => $qty[$j],
-                        'szUomId' => $satuan[$j]
-                    );
+                for ($i = 0; $i < count($this->input->post('num')); $i++) {
+                    foreach ($kode as $index => $row) {
+                        if (isset($i)) {
+                            $detBtb = array(
+                                'iId' => $this->uuid->v4(),
+                                'szDocId' => $btb,
+                                'intItemNumber' => $i,
+                                'szProductId' => $kode[$i],
+                                'decQty' => $qty[$i],
+                                'szUomId' => $satuan[$i]
+                            );
+
+                            $historyGdg = array(
+                                'iId' => $this->uuid->v4(),
+                                'szProductId' => $kode[$i],
+                                'szLocationType' => 'WAREHOUSE',
+                                'szLocationId' => $gudang,
+                                'szStockTypeId' => $stok,
+                                'szReportedAsId' => $depo,
+                                'decQtyOnHand' => $qty[$i],
+                                'szUomId' => $satuan[$i],
+                                'dtmTransaction' => $tgl,
+                                'szTrnId' => 'DMSDocStockInBranch',
+                                'szDocId' => $btb,
+                                'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_branch'),
+                                'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_branch'),
+                                'dtmCreated' => date('Y-m-d H:i:s'),
+                                'dtmLastUpdated' => date('Y-m-d H:i:s')
+                            );
+
+                            $getProduk .= "'" . $kode[$i] . "',";
+                        }
+                    }
+                    // echo "<pre> Detail :".var_export($detBtb, true)."</pre>";
                     $bkbDetail = $this->mInventDepot->simpanData($detBtb, $base . '.dms_inv_docstockinbranchitem');
-                    $bkbDetailDms = $this->mInventDepot->simpanDms($detBtb, 'dms.dms_inv_docstockinbranchitem');
+                    // $bkbDetailDms = $this->mInventDepot->simpanDms($detBtb, 'dmstesting.dms_inv_docstockinbranchitem');
 
-                    $historyGdg = array(
-                        'iId' => $this->uuid->v4(),
-                        'szProductId' => $kode[$j],
-                        'szLocationType' => 'WAREHOUSE',
-                        'szLocationId' => $gudang,
-                        'szStockTypeId' => $stok,
-                        'szReportedAsId' => $depo,
-                        'decQtyOnHand' => $qty[$j],
-                        'szUomId' => $satuan[$j],
-                        'dtmTransaction' => $tgl,
-                        'szTrnId' => 'DMSDocStockInBranch',
-                        'szDocId' => $btb,
-                        'szUserCreatedId' => 'mdba-'.$this->session->userdata('user_branch'),
-                        'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_branch'),
-                        'dtmCreated' => date('Y-m-d H:i:s'),
-                        'dtmLastUpdated' => date('Y-m-d H:i:s')
-                    );
                     $gdgHistory = $this->mInventDepot->simpanData($historyGdg, $base . '.dms_inv_stockhistory');
-                    $gdgHistoryDms = $this->mInventDepot->simpanDms($historyGdg, 'dms.dms_inv_stockhistory');
-
-                    $getProduk .= "'" . $kode[$j] . "',";
+                    // $gdgHistoryDms = $this->mInventDepot->simpanDms($historyGdg, 'dmstesting.dms_inv_stockhistory');
                 }
                 $cekLen = strlen($getProduk);
                 $product = substr($getProduk, 0, $cekLen - 1);
 
-                $warehouseG = "'" . $gudang . "'";
-                $stockG = "'" . $stok . "'";
-                $OnHandG = $this->mInventDist->stockOnHand($product, $gudang, $stok);
-                echo "<pre> OnHandG :" . var_export($OnHandG, true) . "</pre>";
+                $OnHandG = $this->mInventDepot->stockOnHand($product, $gudang, $stok);
+                // echo "<pre> OnHandG :" . var_export($OnHandG, true) . "</pre>";
                 if ($OnHandG != '0') {
                     foreach ($OnHandG as $value) {
                         for ($i = 0; $i < count($kode); $i++) {
                             if ($value->szProductId == $kode[$i]) {
                                 $updOnHandG = array(
                                     'decQtyOnHand' => (int)$value->decQtyOnHand + (int)$qty[$i],
-                                    'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_nik'),
+                                    'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
                                     'dtmLastUpdated' => date('Y-m-d H:i:s')
                                 );
                                 $whereOnHandG = array(
@@ -1083,7 +1064,7 @@ class inventDepot extends CI_Controller
                         // echo "<pre> updOnHandG :".var_export($updOnHandG, true)."</pre>";
                         // echo "<pre> whereOnHandG :".var_export($whereOnHandG, true)."</pre>";
                         $onHandUpdateG = $this->mInventDist->updateData($whereOnHandG, $updOnHandG, $base . '.dms_inv_stockonhand');
-                        $onHandUpdateGDms = $this->mInventDepot->updateDms($whereOnHandG, $updOnHandG, 'dms.dms_inv_stockonhand');
+                        // $onHandUpdateGDms = $this->mInventDepot->updateDms($whereOnHandG, $updOnHandG, 'dmstesting.dms_inv_stockonhand');
                     }
                 } else {
                     foreach ($OnHandG as $key) {
@@ -1097,8 +1078,8 @@ class inventDepot extends CI_Controller
                                 'szReportedAsId' => $this->session->userdata('user_branch'),
                                 'decQtyOnHand' => $qty[$i],
                                 'szUomId' => $key->szUomId,
-                                'szUserCreatedId' => 'mdba-'.$this->session->userdata('user_nik'),
-                                'szUserUpdatedId' => 'mdba-'.$this->session->userdata('user_nik'),
+                                'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+                                'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
                                 'dtmCreated' => date('Y-m-d H:i:s'),
                                 'dtmLastUpdated' => date('Y-m-d H:i:s')
                             );
@@ -1129,9 +1110,9 @@ class inventDepot extends CI_Controller
     function updateBtb()
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $btbOld = $this->input->post('btbOld');
         $bkb = $this->input->post('bkb');
@@ -1165,7 +1146,7 @@ class inventDepot extends CI_Controller
             $updateCountBtb = array('intLastCounter' => $countBtb);
             $whereCountBtb = array('szId' => $id);
             $counterUpdate = $this->mInventDepot->updateData($whereCountBtb, $updateCountBtb, $base . '.dms_sm_counter');
-            $counterUpdateDms = $this->mInventDepot->updateDms($whereCountBtb, $updateCountBtb, 'dms.dms_sm_counter');
+            $counterUpdateDms = $this->mInventDepot->updateDms($whereCountBtb, $updateCountBtb, 'dmstesting.dms_sm_counter');
 
             $adjustment = 'ADJ' . $depo . 'COU';
             $adj = $this->mInventDepot->getId($adjustment);
@@ -1174,7 +1155,7 @@ class inventDepot extends CI_Controller
             $updateCountAdj = array('intLastCounter' => $counterAdj);
             $whereCountAdj = array('szId' => $adjustment);
             $counterUpdate = $this->mInventDepot->updateData($whereCountAdj, $updateCountAdj, $base . '.dms_sm_counter');
-            $counterUpdateDms = $this->mInventDepot->updateDms($whereCountAdj, $updateCountAdj, 'dms.dms_sm_counter');
+            $counterUpdateDms = $this->mInventDepot->updateDms($whereCountAdj, $updateCountAdj, 'dmstesting.dms_sm_counter');
 
             $edit = $this->mInventDepot->editBtb($btbOld);
             $prodOld = '';
@@ -1191,7 +1172,7 @@ class inventDepot extends CI_Controller
                     'szProductId' => $value->szProductId
                 );
                 $historyBtbOld = $this->mInventDepot->updateData($updHistoryOld, $whereHistoryOld, $base . '.dms_inv_stockHistory');
-                $historyBtbOldDms = $this->mInventDepot->updateDms($updHistoryOld, $whereHistoryOld, 'dms.dms_inv_stockHistory');
+                $historyBtbOldDms = $this->mInventDepot->updateDms($updHistoryOld, $whereHistoryOld, 'dmstesting.dms_inv_stockHistory');
 
                 $prodOld .= "'" . $value->szProductId . "',";
                 $stokOld = $value->szStockType;
@@ -1207,7 +1188,7 @@ class inventDepot extends CI_Controller
                     'szProductId' => $value->szProductId
                 );
                 $detBtbOld = $this->mInventDepot->updateData($whereDetailOld, $updDetailOld, $base . '.dms_inv_docstockinbranchitem');
-                $detBtbOldDms = $this->mInventDepot->updateDms($whereDetailOld, $updDetailOld, 'dms.dms_inv_docstockinbranchitem');
+                $detBtbOldDms = $this->mInventDepot->updateDms($whereDetailOld, $updDetailOld, 'dmstesting.dms_inv_docstockinbranchitem');
 
                 $updOldBtb = array(
                     'szDocId' => $btb
@@ -1217,7 +1198,7 @@ class inventDepot extends CI_Controller
                     'szDocId' => $btbOld
                 );
                 $oldUpd = $this->mInventDepot->updateData($whereOldBtb, $updOldBtb, $base . '.dms_inv_docstockinbranch');
-                $btbOldUpd = $this->mInventDepot->updateDms($whereOldBtb, $updOldBtb, 'dms.dms_inv_docstockinbranch');
+                $btbOldUpd = $this->mInventDepot->updateDms($whereOldBtb, $updOldBtb, 'dmstesting.dms_inv_docstockinbranch');
             }
 
             $lenOld = strlen($prodOld);
@@ -1244,7 +1225,7 @@ class inventDepot extends CI_Controller
                         }
                     }
                     $onHandUpdateOld = $this->mInventDepot->updateData($whereOnHandOld, $updOnHandOld, $base . '.dms_inv_stockonhand');
-                    $onHandUpdateOldDms = $this->mInventDepot->updateDms($whereOnHandOld, $updOnHandOld, 'dms.dms_inv_stockonhand');
+                    $onHandUpdateOldDms = $this->mInventDepot->updateDms($whereOnHandOld, $updOnHandOld, 'dmstesting.dms_inv_stockonhand');
                 }
             } else {
                 foreach ($OnHandOld as $key) {
@@ -1280,7 +1261,7 @@ class inventDepot extends CI_Controller
                 'szAdjustmentId' => $btb
             );
             $refDocAdj = $this->mInventDepot->simpanData($adjRefDoc, $base . '.dms_inv_stockadjustmentrefdoc');
-            $refDocAdjDms = $this->mInventDepot->simpanDms($adjRefDoc, 'dms.dms_inv_stockadjustmentrefdoc');
+            $refDocAdjDms = $this->mInventDepot->simpanDms($adjRefDoc, 'dmstesting.dms_inv_stockadjustmentrefdoc');
 
             $adjustmentHeader = array(
                 'iId' => $this->uuid->v4(),
@@ -1299,7 +1280,7 @@ class inventDepot extends CI_Controller
                 'dtmLastUpdated' => date('Y-m-d H:i:S')
             );
             $headAdj = $this->mInventDepot->simpanData($adjustmentHeader, $base . '.dms_inv_docstockadjustment');
-            $headAdjDms = $this->mInventDepot->simpanDms($adjustmentHeader, 'dms.dms_inv_docstockadjustment');
+            $headAdjDms = $this->mInventDepot->simpanDms($adjustmentHeader, 'dmstesting.dms_inv_docstockadjustment');
 
             $headBtb = array(
                 'iId' => $this->uuid->v4(),
@@ -1321,7 +1302,7 @@ class inventDepot extends CI_Controller
                 'szDescription' => $keterangan
             );
             $btbHeader = $this->mInventDepot->simpanData($headBtb, $base . '.dms_inv_docstockinbranch');
-            $btbHeaderDms = $this->mInventDepot->simpanDms($headBtb, 'dms.dms_inv_docstockinbranch');
+            $btbHeaderDms = $this->mInventDepot->simpanDms($headBtb, 'dmstesting.dms_inv_docstockinbranch');
 
             $getProduk = '';
             for ($j = 0; $j < count($kode); $j++) {
@@ -1334,7 +1315,7 @@ class inventDepot extends CI_Controller
                     'szUomId' => $satuan[$j]
                 );
                 $bkbDetail = $this->mInventDepot->simpanData($detBtb, $base . '.dms_inv_docstockinbranchitem');
-                $bkbDetailDms = $this->mInventDepot->simpanDms($detBtb, 'dms.dms_inv_docstockinbranchitem');
+                $bkbDetailDms = $this->mInventDepot->simpanDms($detBtb, 'dmstesting.dms_inv_docstockinbranchitem');
 
                 $historyGdg = array(
                     'iId' => $this->uuid->v4(),
@@ -1354,7 +1335,7 @@ class inventDepot extends CI_Controller
                     'dtmLastUpdated' => date('Y-m-d H:i:s')
                 );
                 $gdgHistory = $this->mInventDepot->simpanData($historyGdg, $base . '.dms_inv_stockhistory');
-                $gdgHistoryDms = $this->mInventDepot->simpanDms($historyGdg, 'dms.dms_inv_stockhistory');
+                $gdgHistoryDms = $this->mInventDepot->simpanDms($historyGdg, 'dmstesting.dms_inv_stockhistory');
 
                 $detAdjustment = array(
                     'iId' => $this->uuid->v4(),
@@ -1365,7 +1346,7 @@ class inventDepot extends CI_Controller
                     'szUomId' => $satuan[$j]
                 );
                 $detAdjustment = $this->mInventDepot->simpanData($detAdjustment, $base . '.dms_inv_docstockadjustmentitem');
-                $detAdjustmentDms = $this->mInventDepot->simpanDms($detAdjustment, 'dms.dms_inv_docstockadjustmentitem');
+                $detAdjustmentDms = $this->mInventDepot->simpanDms($detAdjustment, 'dmstesting.dms_inv_docstockadjustmentitem');
 
                 $getProduk .= "'" . $kode[$j] . "',";
             }
@@ -1394,7 +1375,7 @@ class inventDepot extends CI_Controller
                         }
                     }
                     $onHandUpdateG = $this->mInventDepot->updateData($whereOnHandG, $updOnHandG, $base . '.dms_inv_stockonhand');
-                    $onHandUpdateGDms = $this->mInventDepot->updateDms($whereOnHandG, $updOnHandG, 'dms.dms_inv_stockonhand');
+                    $onHandUpdateGDms = $this->mInventDepot->updateDms($whereOnHandG, $updOnHandG, 'dmstesting.dms_inv_stockonhand');
                 }
             } else {
                 foreach ($OnHandG as $value) {

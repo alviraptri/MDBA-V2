@@ -311,6 +311,13 @@ footer {
 	border-radius: .25rem;
 }
 
+.btn-adjust{
+	background-color: white;
+	border-color: #D82148;
+	color: #D82148;
+	border-radius: .25rem;
+}
+
 .btn.btn-danger,
 .btn.btn-dark,
 .btn.btn-info,

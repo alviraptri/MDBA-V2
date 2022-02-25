@@ -109,9 +109,9 @@ class mInventDepot extends CI_Model
     function stockOnHand($product, $lokasiId, $stockTypeId)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $depo = $this->session->userdata('user_branch');
 
@@ -130,26 +130,26 @@ class mInventDepot extends CI_Model
     function getId($id)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'asa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'tvip';
+            $base = 'dummymdbatvip';
         }
-        $this->db2 = $this->load->database($base, true);
-        $query = $this->db2->query("SELECT intLastCounter FROM dms.dms_sm_counter WHERE szId = '$id'");
+        // $this->db2 = $this->load->database($base, true);
+        $query = $this->db->query("SELECT intLastCounter FROM $base.dms_sm_counter WHERE szId = '$id'");
         foreach ($query->result() as $a) {
             $tmp = ($a->intLastCounter + 1);
             $auto_num = sprintf("%07s", $tmp);
         }
         return $this->session->userdata('user_branch') . "-" . $auto_num;
-        $this->db2->close();
+        // $this->db2->close();
     }
 
     function getCounter($countId)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT intLastCounter FROM $base.dms_sm_counter WHERE szId = '$countId'");
         foreach ($query->result() as $value) {
@@ -195,10 +195,10 @@ class mInventDepot extends CI_Model
     function getEmployee($depo)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
             $namedept = 'dms111asa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
             $namedept = 'dms111tvip';
         }
         $query = $this->db->query("SELECT * FROM $namedept.`dms_pi_employee` a
@@ -214,9 +214,9 @@ class mInventDepot extends CI_Model
     function getEmployeeIn($id)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $branch = $this->session->userdata('user_branch');
         $where = "'$id', '$branch'";
@@ -230,33 +230,13 @@ class mInventDepot extends CI_Model
         return 0;
     }
 
-    function getEmployeeName($id)
-    {
-        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
-            $namedept = 'dms111asa';
-        } else {
-            $base = 'mdbatvip';
-            $namedept = 'dms111tvip';
-        }
-        $depo = $this->session->userdata('user_branch');
-        $query = $this->db->query("SELECT a.`szName` FROM $namedept.`dms_pi_employee` a
-        WHERE a.`szId` = '$id'");
-
-        if ($query->num_rows() > 0) {
-            $res = $query->result();
-            return $res;
-        }
-        return 0;
-    }
-
     function getVehicle($depo)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
             $namedept = 'dms111asa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
             $namedept = 'dms111tvip';
         }
         $query = $this->db->query("SELECT * FROM $namedept.`dms_inv_vehicle` a
@@ -275,10 +255,10 @@ class mInventDepot extends CI_Model
     function getVehicleIn($id)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
             $namedept = 'dms111asa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
             $namedept = 'dms111tvip';
         }
         $branch = $this->session->userdata('user_branch');
@@ -288,23 +268,6 @@ class mInventDepot extends CI_Model
         UNION 
         SELECT * FROM $namedept.`dms_inv_vehicle` b
         WHERE b.szId = 'INTERN'");
-
-        if ($query->num_rows() > 0) {
-            $res = $query->result();
-            return $res;
-        }
-        return 0;
-    }
-
-    function getVehicleName($id)
-    {
-        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
-        } else {
-            $base = 'mdbatvip';
-        }
-        $query = $this->db->query("SELECT a.`szPoliceNo` FROM $base.`dms_inv_vehicle` a
-        WHERE a.`szId` = '$id'");
 
         if ($query->num_rows() > 0) {
             $res = $query->result();
@@ -333,9 +296,9 @@ class mInventDepot extends CI_Model
     function getProductDetail($id)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`szName`, a.`szUomId` FROM $base.`dms_inv_product` a
         WHERE a.`szId` = '$id'");
@@ -366,30 +329,12 @@ class mInventDepot extends CI_Model
         return 0;
     }
 
-    function getBranchName($id)
-    {
-        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
-        } else {
-            $base = 'mdbatvip';
-        }
-        $query = $this->db->query("SELECT a.`szName` FROM $base.`dms_sm_branch` a
-        WHERE a.`szId` = '$id'
-        ");
-
-        if ($query->num_rows() > 0) {
-            $res = $query->result();
-            return $res;
-        }
-        return 0;
-    }
-
     function getCustomer($depo)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`szId` FROM $base.`dms_ar_customerstructure` a
         WHERE a.`szSoldToBranchId` = '$depo'   
@@ -404,9 +349,9 @@ class mInventDepot extends CI_Model
     function getSoName($id)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`szName` FROM $base.`dms_ar_customer` a
         WHERE a.`szId` = '$id'  
@@ -422,9 +367,9 @@ class mInventDepot extends CI_Model
     function refDocDepot($tanggal, $depo)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`refOld` FROM $base.`mdbarefdoc` a
         WHERE a.`refDocType` = 'DMSDocStockInBranch' AND a.`refTanggal` = '$tanggal' AND a.`refDepo` = '$depo'");
@@ -440,9 +385,9 @@ class mInventDepot extends CI_Model
     function getBkbDepot($tanggal, $depo, $referensi)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $namedept = 'asa';
@@ -453,10 +398,10 @@ class mInventDepot extends CI_Model
         $this->db2 = $this->load->database($namedept, true);
 
         if ($referensi != '0') {
-            $query = $this->db2->query("SELECT a.`szDocId` FROM dms.`dms_inv_docstockoutbranch` a
+            $query = $this->db2->query("SELECT a.`szDocId` FROM dmstesting.`dms_inv_docstockoutbranch` a
             WHERE a.`szPartyId` = '$depo' AND a.`szDocId` NOT IN ($referensi) -- AND a.`dtmDoc` = '$tanggal' ");
         } else {
-            $query = $this->db2->query("SELECT a.`szDocId` FROM dms.`dms_inv_docstockoutbranch` a
+            $query = $this->db2->query("SELECT a.`szDocId` FROM dmstesting.`dms_inv_docstockoutbranch` a
             WHERE a.`szPartyId` = '$depo' -- AND a.`dtmDoc` = '$tanggal'");
         }
 
@@ -481,14 +426,14 @@ class mInventDepot extends CI_Model
 
         $query = $this->db2->query("SELECT a.`dtmDoc`, a.`szBranchId`, c.`szName` AS depo, a.`szWarehouseId`, d.`szName` AS gudang, a.`szStockType`, e.`szName` AS tipe, a.`szEmployeeId`, f.`szName` AS driver,
         a.`szVehicleId`, g.`szPoliceNo` AS nopol, b.`szProductId`, h.`szName` AS produk, b.`szUomId`, b.`decQty`, a.`szDescription`
-        FROM dms.`dms_inv_docstockoutbranch` a
-        LEFT JOIN dms.`dms_inv_docstockoutbranchitem` b ON a.`szDocId` = b.`szDocId`
-        LEFT JOIN dms.`dms_sm_branch` c ON a.`szBranchId` = c.`szId`
-        LEFT JOIN dms.`dms_inv_warehouse` d ON a.`szWarehouseId` = d.`szId`
-        LEFT JOIN dms.`dms_inv_stocktype` e ON a.`szStockType` = e.`szId`
-        LEFT JOIN dms.`dms_pi_employee` f ON a.`szEmployeeId` = f.`szId`
-        LEFT JOIN dms.`dms_inv_vehicle` g ON a.`szVehicleId` = g.`szId`
-        LEFT JOIN dms.`dms_inv_product` h ON b.`szProductId` = h.`szId`
+        FROM dmstesting.`dms_inv_docstockoutbranch` a
+        LEFT JOIN dmstesting.`dms_inv_docstockoutbranchitem` b ON a.`szDocId` = b.`szDocId`
+        LEFT JOIN dmstesting.`dms_sm_branch` c ON a.`szBranchId` = c.`szId`
+        LEFT JOIN dmstesting.`dms_inv_warehouse` d ON a.`szWarehouseId` = d.`szId`
+        LEFT JOIN dmstesting.`dms_inv_stocktype` e ON a.`szStockType` = e.`szId`
+        LEFT JOIN dmstesting.`dms_pi_employee` f ON a.`szEmployeeId` = f.`szId`
+        LEFT JOIN dmstesting.`dms_inv_vehicle` g ON a.`szVehicleId` = g.`szId`
+        LEFT JOIN dmstesting.`dms_inv_product` h ON b.`szProductId` = h.`szId`
         WHERE a.`szDocId` = '$bkb'");
 
         if ($query->num_rows() > 0) {
@@ -592,10 +537,10 @@ class mInventDepot extends CI_Model
     function editBkb($document)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
             $dept = 'dms111asa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
             $dept = 'dms111tvip';
         }
         $query = $this->db->query("SELECT a.`szDocId`, a.`dtmDoc`, h.`refOld`, e.`szName` AS pengemudi, a.`szEmployeeId`, a.`szVehicleId`, c.`szName` AS gudang, a.`szWarehouseId`, g.`szName` AS stok, a.`szStockType`, g.`szId` AS idStok, a.`szDescription`,
@@ -627,16 +572,16 @@ class mInventDepot extends CI_Model
         $this->db2 = $this->load->database($namedept, true);
         $query = $this->db2->query("SELECT a.`szDocId`, a.`dtmDoc`, e.`szName` AS pengemudi, a.`szEmployeeId`, a.`szVehicleId`, c.`szName` AS gudang, a.`szWarehouseId`, g.`szName` AS stok, a.`szStockType`, g.`szId` AS idStok, a.`szDescription`,
         d.`szName` AS product, b.`decQty`, b.`szUomId`, b.`szProductId`, a.`szBranchId`, f.`szName` AS depo, j.`szName` AS so, k.`szName` AS kendaraan
-        FROM dms.`dms_inv_docstockoutbranch` a
-        LEFT JOIN dms.`dms_inv_docstockoutbranchitem` b ON a.`szDocId` = b.`szDocId`
-        LEFT JOIN dms.`dms_inv_warehouse` c ON a.`szWarehouseId` = c.`szId`
-        LEFT JOIN dms.`dms_inv_product` d ON b.`szProductId` = d.`szId`
-        LEFT JOIN dms.`dms_inv_stockonhand` i ON b.`szProductId` = i.`szProductId` AND i.`szLocationType` = 'WAREHOUSE' AND i.`szStockTypeId` = a.`szStockType` AND i.`szReportedAsId` = a.`szPartyId`
-        LEFT JOIN dms.`dms_pi_employee` e ON a.`szEmployeeId` = e.`szId`
-        LEFT JOIN dms.`dms_inv_stocktype` g ON a.`szStockType` = g.`szId`
-        LEFT JOIN dms.`dms_sm_branch` f ON a.`szBranchId` = f.`szId`
-        LEFT JOIN dms.`dms_ar_customer` j ON a.`szBranchId` = j.`szId`
-        LEFT JOIN dms.`dms_inv_vehicle` k ON a.`szVehicleId` = k.`szId`
+        FROM dmstesting.`dms_inv_docstockoutbranch` a
+        LEFT JOIN dmstesting.`dms_inv_docstockoutbranchitem` b ON a.`szDocId` = b.`szDocId`
+        LEFT JOIN dmstesting.`dms_inv_warehouse` c ON a.`szWarehouseId` = c.`szId`
+        LEFT JOIN dmstesting.`dms_inv_product` d ON b.`szProductId` = d.`szId`
+        LEFT JOIN dmstesting.`dms_inv_stockonhand` i ON b.`szProductId` = i.`szProductId` AND i.`szLocationType` = 'WAREHOUSE' AND i.`szStockTypeId` = a.`szStockType` AND i.`szReportedAsId` = a.`szPartyId`
+        LEFT JOIN dmstesting.`dms_pi_employee` e ON a.`szEmployeeId` = e.`szId`
+        LEFT JOIN dmstesting.`dms_inv_stocktype` g ON a.`szStockType` = g.`szId`
+        LEFT JOIN dmstesting.`dms_sm_branch` f ON a.`szBranchId` = f.`szId`
+        LEFT JOIN dmstesting.`dms_ar_customer` j ON a.`szBranchId` = j.`szId`
+        LEFT JOIN dmstesting.`dms_inv_vehicle` k ON a.`szVehicleId` = k.`szId`
         WHERE a.`szDocId` = '$document'");
         return $query->result();
         $this->db2->close();
@@ -645,9 +590,9 @@ class mInventDepot extends CI_Model
     function getHistoryBtb($tanggal)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`szDocId`, c.`refOld`, a.`dtmDoc` FROM $base.`dms_inv_docstockinbranch` a
         LEFT JOIN $base.`dms_inv_stockadjustmentrefdoc` b ON a.`szDocId` = b.`szAdjustmentId` AND b.`szRefDocTypeId` = 'DMSDocStockInBranch'
@@ -659,9 +604,9 @@ class mInventDepot extends CI_Model
     function editBtb($document)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`szDocId`, a.`dtmDoc`, h.`refOld`, e.`szName` AS pengemudi, a.`szEmployeeId`, a.`szVehicleId`, c.`szName` AS gudang, a.`szWarehouseId`, g.`szName` AS stok, a.`szStockType`, g.`szId` AS idStok, a.`szDescription`,
         d.`szName` AS product, b.`decQty`, b.`szUomId`, b.`szProductId`, a.`szPartyId`, f.`szName` AS depo, j.`szName` AS so, k.`szName` AS kendaraan
@@ -684,9 +629,9 @@ class mInventDepot extends CI_Model
     function getHistoryBkb($tanggal)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`szDocId`, c.`refOld`, a.`dtmDoc` FROM $base.`dms_inv_docstockoutbranch` a
         LEFT JOIN $base.`dms_inv_stockadjustmentrefdoc` b ON a.`szDocId` = b.`szAdjustmentId` AND b.`szRefDocTypeId` = 'DMSDocStockOutBranch'

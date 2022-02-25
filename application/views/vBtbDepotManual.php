@@ -131,20 +131,17 @@
                                                     <div class="form-group">
                                                         <label for="last-name-column">Depo Asal</label>
                                                         <div class="row">
-                                                            <div class="col-3" style="padding-right: 0">
+                                                            <div class="col-12" style="padding-right: 0">
                                                                 <select class="js-example-basic-single col-md-2 form-select" name="asal" id="idAsal" onchange="getFormDepoAsal()">
                                                                     <option value="-" disabled>Pilih Depo</option>
                                                                     <option value=""></option>
                                                                     <?php
                                                                     foreach ($branch as $value) { ?>
-                                                                        <option value="<?= $value->szId; ?>"><?= $value->szId; ?></option>
+                                                                        <option value="<?= $value->szId; ?>"><?= $value->szId; ?> - <?= $value->szName; ?></option>
                                                                     <?php
                                                                     }
                                                                     ?>
                                                                 </select>
-                                                            </div>
-                                                            <div class="col-9" style="padding-left: 0;">
-                                                                <input type="text" id="namaAsal" class="form-control" name="namaAsal" readonly>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -189,14 +186,11 @@
                                                     <div class="form-group">
                                                         <label for="city-column">Pengemudi</label>
                                                         <div class="row">
-                                                            <div class="col-4" style="padding-right: 0">
-                                                                <select class="js-example-basic-single col-md-6 form-select" name="pengemudi" id="idPengemudi" onchange="getFormPengemudi()">
+                                                            <div class="col-12" style="padding-right: 0">
+                                                                <select class="js-example-basic-single col-md-6 form-select" name="pengemudi" id="idPengemudi">
                                                                     <option value="-" disabled>Pilih Pengemudi</option>
                                                                     <option value=""></option>
                                                                 </select>
-                                                            </div>
-                                                            <div class="col-8" style="padding-left: 0;">
-                                                                <input type="text" id="pengemudiNama" class="form-control" name="namaPengemudi" readonly>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -206,14 +200,11 @@
                                                     <div class="form-group">
                                                         <label for="city-column">Kendaraan</label>
                                                         <div class="row">
-                                                            <div class="col-4" style="padding-right: 0">
-                                                                <select class="js-example-basic-single col-md-6 form-select" name="kendaraan" id="idKendaraan" onchange="getFormKendaraan()">
+                                                            <div class="col-12" style="padding-right: 0">
+                                                                <select class="js-example-basic-single col-md-6 form-select" name="kendaraan" id="idKendaraan">
                                                                     <option value="-" disabled>Pilih Kendaraan</option>
                                                                     <option value=""></option>
                                                                 </select>
-                                                            </div>
-                                                            <div class="col-8" style="padding-left: 0;">
-                                                                <input type="text" id="kendaraanNama" class="form-control" name="namaKendaraan" readonly>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -239,7 +230,7 @@
                                                         </thead>
                                                         <tbody id="table_body" class="view-this">
                                                             <tr id="baris0">
-                                                                <td>1 <input type="hidden" id="counter" value="0"></td>
+                                                                <td>1 <input type="hidden" id="counter" value="0"><input name="num[]" type="hidden" value="0"></td>
                                                                 <td>
                                                                     <select class="js-example-basic-single form-select" name="kode[]" id="idKode0" required onchange="getFormProduk(0)">
                                                                         <option value="-" disabled>Pilih Produk</option>
@@ -302,21 +293,6 @@
             var id = document.getElementById('idAsal').value;
 
             $.ajax({
-                url: "<?= base_url('inventDepot/getBranchName') ?>",
-                method: "POST",
-                data: {
-                    id: id
-                },
-                async: true,
-                dataType: "JSON",
-                success: function(data) {
-                    for (var row of data) {
-                        document.getElementById('namaAsal').value = row.szName;
-                    }
-                }
-            })
-
-            $.ajax({
                 url: "<?= base_url('inventDepot/getVehicle') ?>",
                 method: "POST",
                 data: {
@@ -331,7 +307,7 @@
 
                     var template = (row) => `  
                         <option value=""><option>
-                        <option value="${row.szId}">${row.szPoliceNo}</option>
+                        <option value="${row.szId}">${row.szPoliceNo} - ${row.szName}</option>
                     `
 
                     for (var row of data) {
@@ -356,7 +332,7 @@
 
                     var template = (row) => ` 
                         <option value=""><option> 
-                        <option value="${row.szId}">${row.szId}</option>
+                        <option value="${row.szId}">${row.szId} - ${row.szName}</option>
                     `
 
                     for (var row of data) {
@@ -365,44 +341,6 @@
                     }
                 }
             });
-        }
-
-        function getFormPengemudi() {
-            var pengemudi = document.getElementById('idPengemudi').value;
-
-            $.ajax({
-                url: "<?= base_url('inventDepot/getEmployeeName') ?>",
-                method: "POST",
-                data: {
-                    pengemudi: pengemudi
-                },
-                async: true,
-                dataType: "JSON",
-                success: function(data) {
-                    for (var row of data) {
-                        document.getElementById('pengemudiNama').value = row.szName;
-                    }
-                }
-            })
-        }
-
-        function getFormKendaraan() {
-            var kendaraan = document.getElementById('idKendaraan').value;
-
-            $.ajax({
-                url: "<?= base_url('inventDepot/getVehicleName') ?>",
-                method: "POST",
-                data: {
-                    kendaraan: kendaraan
-                },
-                async: true,
-                dataType: "JSON",
-                success: function(data) {
-                    for (var row of data) {
-                        document.getElementById('kendaraanNama').value = row.szPoliceNo;
-                    }
-                }
-            })
         }
 
         function getFormProduk(x) {
@@ -436,9 +374,9 @@
             var newrow = $(".view-this");
             var cols = "";
             cols += "<tr id='baris" + count + "'>";
-            cols += "<td>" + (count + 1) + "</td>";
+            cols += "<td>" + (count + 1) + "<input name='num[" + count + "]' type='hidden' value='" + count + "'></td>";
             cols += "<td>";
-            cols += "<select class='js-example-basic-single form-select' name='kode[" + count + "]' id='idKode" + count + "' required onchange='getFormProduk(" + count + ")'>";
+            cols += "<select class='js-example-basic-single form-select' name='kode[]' id='idKode" + count + "' required onchange='getFormProduk(" + count + ")'>";
             cols += "<option value='-' disabled>Pilih Produk</option>";
             cols += "<option value=''></option>";
             cols += "<?php foreach ($product as $value) { ?>";
@@ -447,10 +385,10 @@
             cols += "</select>";
             cols += "</td>";
             cols += "<td>";
-            cols += "<input name='qty[" + count + "]' type='text' id='idQty" + count + "' class='form-control' onkeypress='return hanyaAngka(event)' autocomplete='off' required>";
+            cols += "<input name='qty[]' type='text' id='idQty" + count + "' class='form-control' onkeypress='return hanyaAngka(event)' autocomplete='off' required>";
             cols += "</td>";
             cols += "<td>";
-            cols += "<input name='satuan[" + count + "]' type='text' id='idSatuan" + count + "' class='form-control' readonly>";
+            cols += "<input name='satuan[]' type='text' id='idSatuan" + count + "' class='form-control' readonly>";
             cols += "</td>";
             cols += "<td>";
             cols += "<a class='btn btn-danger' onclick='deleteRow(" + count + ")' style='color: white;'>-</a>";
