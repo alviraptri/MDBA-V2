@@ -322,4 +322,10 @@ class home extends CI_Controller
     {
         $this->load->view('vDispenserBtbList');
     }
+
+    function rute()
+    {
+        $data['data'] = $this->mHome->rute();
+        $this->load->view('vSndRuteList', $data);
+    }
 }

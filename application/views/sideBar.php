@@ -400,42 +400,41 @@
                         </li>
                     </ul>
                 </li>
-                <!-- <li class="sidebar-item  has-sub">
+                <li class="sidebar-item  has-sub">
                     <a href="#" class='sidebar-link'>
-                        <i data-feather="triangle" width="20"></i>
                         <span>Distribusi</span>
                     </a>
                     <ul class="submenu ">
-                        <li>
+                        <!-- <li>
                             <a href="component-alert.html">Dist. Channel</a>
-                        </li>
-                        <li>
+                        </li> -->
+                        <!-- <li>
                             <a href="component-breadcrumb.html">Kalender</a>
-                        </li>
-                        <li>
+                        </li> -->
+                        <!-- <li>
                             <a href="component-breadcrumb.html">Kalender Periodik</a>
-                        </li>
+                        </li> -->
                         <li>
-                            <a href="component-breadcrumb.html">Rute</a>
+                            <a href="<?php echo base_url('home/rute'); ?>">Rute</a>
                         </li>
-                        <li>
+                        <!-- <li>
                             <a href="component-breadcrumb.html">Sumber PO</a>
-                        </li>
-                        <li>
+                        </li> -->
+                        <!-- <li>
                             <a href="component-breadcrumb.html">Organisasi Penjualan</a>
-                        </li>
-                        <li>
+                        </li> -->
+                        <!-- <li>
                             <a href="component-breadcrumb.html">Lihat Produk Sewa</a>
-                        </li>
-                        <li>
+                        </li> -->
+                        <!-- <li>
                             <a href="component-breadcrumb.html">Sisa Stok Pelanggan</a>
-                        </li>
-                        <li>
+                        </li> -->
+                        <!-- <li>
                             <a href="component-breadcrumb.html">Settlement Dist Ver. 2</a>
-                        </li>
+                        </li> -->
                     </ul>
                 </li>
-                <li class="sidebar-item  has-sub">
+                <!-- <li class="sidebar-item  has-sub">
                     <a href="#" class='sidebar-link'>
                         <i data-feather="triangle" width="20"></i>
                         <span>Invoice</span>
