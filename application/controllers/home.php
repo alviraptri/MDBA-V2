@@ -328,4 +328,10 @@ class home extends CI_Controller
         $data['data'] = $this->mHome->rute();
         $this->load->view('vSndRuteList', $data);
     }
+
+    function prosesSuratTugas()
+    {
+        $data['data'] = $this->mHome->prosesSuratTugas();
+        $this->load->view('vSndProsesST');
+    }
 }

@@ -109,21 +109,21 @@ class mSnDPB extends CI_Model
     function getId($id)
     {
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+            $base = 'dummymdbaasa';
             $dept = 'asa';
         } else {
-            $base = 'mdbatvip';
+            $base = 'dummymdbatvip';
             $dept = 'tvip';
         }
 
-        $this->db2 = $this->load->database($dept, true);
-        $query = $this->db2->query("SELECT intLastCounter FROM dms.dms_sm_counter WHERE szId = '$id'");
+        // $this->db2 = $this->load->database($dept, true);
+        $query = $this->db2->query("SELECT intLastCounter FROM $base.dms_sm_counter WHERE szId = '$id'");
         foreach ($query->result() as $a) {
             $tmp = ($a->intLastCounter + 1);
             $auto_num = sprintf("%07s", $tmp);
         }
         return $this->session->userdata('user_branch') . "-" . $auto_num;
-        $this->db2->close();
+        // $this->db2->close();
     }
 
     function getCounter($countId)

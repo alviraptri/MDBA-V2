@@ -880,9 +880,9 @@ class mHome extends CI_Model
         $depo = $this->session->userdata('user_branch');
         $tanggal = date('Y-m-d');
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'dms111asa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'dms111tvip';
+            $base = 'dummymdbatvip';
         }
         $query = $this->db->query("SELECT a.`szDocPRId` FROM $base.`dms_inv_docstockoutdistribution` a
         WHERE a.`szBranchId` = '$depo' AND a.`dtmDoc` = '$tanggal' 
@@ -898,31 +898,68 @@ class mHome extends CI_Model
     {
         $depo = $this->session->userdata('user_branch');
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'dms111asa';
+            $base = 'dummymdbaasa';
         } else {
-            $base = 'dms111tvip';
+            $base = 'dummymdbatvip';
         }
-        $query = $this->db->query("SELECT a.szEmployeeId, b.`szName`, a.`szRouteType`, FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 AS weeks, DAYNAME(CURDATE()) AS days 
-        FROM $base.`dms_ar_customerrouteinfo` a
-        LEFT JOIN $base.`dms_pi_employee` b ON a.`szEmployeeId` = b.`szId`
-        WHERE a.`szEmployeeId` LIKE '$depo-%' 
-        AND CASE WHEN DAYNAME(CURDATE()) = 'Monday' THEN a.`bMon` = '1' 
-                WHEN DAYNAME(CURDATE()) = 'Tuesday' THEN a.`bTue` = '1'
-                WHEN DAYNAME(CURDATE()) = 'Wednesday' THEN a.`bWed` = '1'  
-                WHEN DAYNAME(CURDATE()) = 'Thrusday' THEN a.`bThu` = '1'
-                WHEN DAYNAME(CURDATE()) = 'Friday' THEN a.`bFri` = '1'
-                WHEN DAYNAME(CURDATE()) = 'Saturday' THEN a.`bSat` = '1'
-                WHEN DAYNAME(CURDATE()) = 'Sunday' THEN a.`bSun` = '1'
-                ELSE FALSE
-            END 
-        AND CASE WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '1' THEN a.`bWeek1` = '1' 
-                WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '2' THEN a.`bWeek2` = '1'
-                WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '3' THEN a.`bWeek3` = '1'  
-                WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '4' THEN a.`bWeek4` = '1'
-                ELSE FALSE
-            END 
-        GROUP BY a.`szEmployeeId`, a.`szRouteType`
-        ORDER BY b.szName ASC
+        $query = $this->db->query("SELECT a.szId, a.`szName`, a.`szRouteType`, FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 AS weeks, DAYNAME(CURDATE()) AS days  
+        FROM $base.`dms_sd_route` a
+        LEFT JOIN $base.`dms_sd_routeitem` b ON a.`szId` = b.`szId`
+        WHERE a.`szId` LIKE '$depo-%'
+        AND CASE WHEN DAYNAME(CURDATE()) = 'Monday' THEN b.`intDay1` = '1' 
+                        WHEN DAYNAME(CURDATE()) = 'Tuesday' THEN b.`intDay2` = '1'
+                        WHEN DAYNAME(CURDATE()) = 'Wednesday' THEN b.`intDay3` = '1'  
+                        WHEN DAYNAME(CURDATE()) = 'Thrusday' THEN b.`intDay4` = '1'
+                        WHEN DAYNAME(CURDATE()) = 'Friday' THEN b.`intDay5` = '1'
+                        WHEN DAYNAME(CURDATE()) = 'Saturday' THEN b.`intDay6` = '1'
+                        WHEN DAYNAME(CURDATE()) = 'Sunday' THEN b.`intDay7` = '1'
+                        ELSE FALSE
+                    END 
+                AND CASE WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '1' THEN b.`intWeek1` = '1' 
+                        WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '2' THEN b.`intWeek2` = '1'
+                        WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '3' THEN b.`intWeek3` = '1'  
+                        WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '4' THEN b.`intWeek4` = '1'
+                        ELSE FALSE
+                    END 
+                GROUP BY a.`szId`, a.`szRouteType`
+                ORDER BY A.szName ASC
+        ");
+        if ($query->num_rows() > 0) {
+            $res = $query->result();
+            return $res;
+        }
+        return [];
+    }
+
+    function prosesSuratTugas()
+    {
+        $depo = $this->session->userdata('user_branch');
+        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
+            $base = 'dummymdbaasa';
+        } else {
+            $base = 'dummymdbatvip';
+        }
+        $query = $this->db->query("SELECT a.szId, a.`szName`, a.`szRouteType`, FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 AS weeks, DAYNAME(CURDATE()) AS days  
+        FROM $base.`dms_sd_route` a
+        LEFT JOIN $base.`dms_sd_routeitem` b ON a.`szId` = b.`szId`
+        WHERE a.`szId` LIKE '$depo-%'
+        AND CASE WHEN DAYNAME(CURDATE()) = 'Monday' THEN b.`intDay1` = '1' 
+                        WHEN DAYNAME(CURDATE()) = 'Tuesday' THEN b.`intDay2` = '1'
+                        WHEN DAYNAME(CURDATE()) = 'Wednesday' THEN b.`intDay3` = '1'  
+                        WHEN DAYNAME(CURDATE()) = 'Thrusday' THEN b.`intDay4` = '1'
+                        WHEN DAYNAME(CURDATE()) = 'Friday' THEN b.`intDay5` = '1'
+                        WHEN DAYNAME(CURDATE()) = 'Saturday' THEN b.`intDay6` = '1'
+                        WHEN DAYNAME(CURDATE()) = 'Sunday' THEN b.`intDay7` = '1'
+                        ELSE FALSE
+                    END 
+                AND CASE WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '1' THEN b.`intWeek1` = '1' 
+                        WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '2' THEN b.`intWeek2` = '1'
+                        WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '3' THEN b.`intWeek3` = '1'  
+                        WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '4' THEN b.`intWeek4` = '1'
+                        ELSE FALSE
+                    END 
+                GROUP BY a.`szId`, a.`szRouteType`
+                ORDER BY A.szName ASC
         ");
         if ($query->num_rows() > 0) {
             $res = $query->result();

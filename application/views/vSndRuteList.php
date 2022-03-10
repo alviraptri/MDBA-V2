@@ -28,6 +28,14 @@
     <script src="<?php echo base_url(); ?>assets/jquery/jquery.min.js"></script>
     <!-- <script src="<?php echo base_url(); ?>assets/jquery/bootstrap.min.js"></script> -->
     <script src="<?php echo base_url(); ?>assets/jquery/sweetalert2.min.js"></script>
+    <?php if ($this->session->flashdata('success')) { ?>
+        <script>
+            Swal.fire({
+                type: 'success',
+                title: 'Data Berhasil Tersimpan',
+            })
+        </script>
+    <?php } ?>
 
     <div id="app">
         <?php include('sideBar.php'); ?>
@@ -84,11 +92,11 @@
                                     foreach ($data as $value) { ?>
                                         <tr>
                                             <td><?= $no; ?></td>
-                                            <td><?= $value->szEmployeeId; ?></td>
+                                            <td><?= $value->szId; ?></td>
                                             <td><?= $value->szName; ?></td>
                                             <td><?= $value->szRouteType; ?></td>
                                             <td>
-                                                <input type="hidden" name="karyawan" id="emp<?= $no; ?>" value="<?= $value->szEmployeeId; ?>">
+                                                <input type="hidden" name="karyawan" id="emp<?= $no; ?>" value="<?= $value->szId; ?>">
                                                 <input type="hidden" name="karyawanNama" id="empNama<?= $no; ?>" value="<?= $value->szName; ?>">
                                                 <input type="hidden" name="rute" id="rute<?= $no; ?>" value="<?= $value->szRouteType; ?>">
                                                 <button type="button" class="btn btn-primary" onclick="detail(<?= $no; ?>)">
@@ -234,20 +242,24 @@
                     document.getElementById("idEmpNama").value = name;
                     document.getElementById("idRute").value = route;
 
+                    for (var row of data) {
+                        document.getElementById("idKeterangan").value = row.szDescription;
+                    }
+
                     var number = 1;
                     var html = '';
                     for (i = 0; i < data.length; i++) {
                         html += '<tr>' +
                             '<td>' + number + '</td>' +
-                            '<td>' + data[i].szId + '</td>' +
+                            '<td>' + data[i].szCustomerId + '</td>' +
                             '<td>' + data[i].szName + '</td>' +
-                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckMon"' + (data[i].bMon == '1' ? "checked" : "") + ' disabled></td>' +
-                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckTue"' + (data[i].bTue == '1' ? "checked" : "") + ' disabled></td>' +
-                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckWed"' + (data[i].bWed == '1' ? "checked" : "") + ' disabled></td>' +
-                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckThu"' + (data[i].bThu == '1' ? "checked" : "") + ' disabled></td>' +
-                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckFri"' + (data[i].bFri == '1' ? "checked" : "") + ' disabled></td>' +
-                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckSat"' + (data[i].bSat == '1' ? "checked" : "") + ' disabled></td>' +
-                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckSun"' + (data[i].bSun == '1' ? "checked" : "") + ' disabled></td>' +
+                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckMon"' + (data[i].intDay1 == '1' ? "checked" : "") + ' disabled></td>' +
+                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckTue"' + (data[i].intDay2 == '1' ? "checked" : "") + ' disabled></td>' +
+                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckWed"' + (data[i].intDay3 == '1' ? "checked" : "") + ' disabled></td>' +
+                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckThu"' + (data[i].intDay4 == '1' ? "checked" : "") + ' disabled></td>' +
+                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckFri"' + (data[i].intDay5 == '1' ? "checked" : "") + ' disabled></td>' +
+                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckSat"' + (data[i].intDay6 == '1' ? "checked" : "") + ' disabled></td>' +
+                            '<td><input class="form-check-input" type="checkbox" value="" id="myCheckSun"' + (data[i].intDay7 == '1' ? "checked" : "") + ' disabled></td>' +
                             '<tr>';
                         number++;
                     }

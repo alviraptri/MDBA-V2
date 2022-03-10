@@ -87,7 +87,7 @@
                         </li>
                     </ul>
                 </li> -->
-                <li class="sidebar-title">Inventori</li>
+                <!-- <li class="sidebar-title">Inventori</li> -->
                 <!-- <li class="sidebar-item  has-sub">
                     <a href="#" class='sidebar-link'> -->
                         <!-- <i data-feather="triangle" width="20"></i> -->
@@ -135,12 +135,12 @@
                         </li>
                     </ul> -->
                 <!-- </li> -->
-                <li class="sidebar-item  has-sub">
-                    <a href="#" class='sidebar-link'>
+                <!-- <li class="sidebar-item  has-sub"> -->
+                    <!-- <a href="#" class='sidebar-link'> -->
                         <!-- <i data-feather="triangle" width="20"></i> -->
-                        <span>BKB dan BTB</span>
-                    </a>
-                    <ul class="submenu ">
+                        <!-- <span>BKB dan BTB</span> -->
+                    <!-- </a> -->
+                    <!-- <ul class="submenu ">
                         <li>
                             <a href="<?php echo base_url('home/btbDepot'); ?>">BTB Depot</a>
                         </li>
@@ -158,16 +158,16 @@
                         </li>
                         <li>
                             <a href="<?php echo base_url('home/bkbSupplier'); ?>">BKB Supplier</a>
-                        </li>
+                        </li> -->
                         <!-- <li>
                             <a href="component-dropdowns.html">BTB Supplier (OTM)</a>
                         </li> -->
-                    </ul>
+                    <!-- </ul>
                 </li>
                 <li class="sidebar-item  has-sub">
-                    <a href="#" class='sidebar-link'>
+                    <a href="#" class='sidebar-link'> -->
                         <!-- <i data-feather="triangle" width="20"></i> -->
-                        <span>Dispenser</span>
+                        <!-- <span>Dispenser</span>
                     </a>
                     <ul class="submenu ">
                         <li>
@@ -179,17 +179,17 @@
                     </ul>
                 </li>
                 <li class="sidebar-item">
-                    <a href="<?php echo base_url('home/sjp'); ?>" class='sidebar-link'>
+                    <a href="<?php echo base_url('home/sjp'); ?>" class='sidebar-link'> -->
                         <!-- <i data-feather="home" width="20"></i> -->
-                        <span>Surat Jalan Pelanggan</span>
-                    </a>
-                </li>
-                <li class="sidebar-item  has-sub">
-                    <a href="#" class='sidebar-link'>
+                        <!-- <span>Surat Jalan Pelanggan</span> -->
+                    <!-- </a> -->
+                <!-- </li> -->
+                <!-- <li class="sidebar-item  has-sub"> -->
+                    <!-- <a href="#" class='sidebar-link'> -->
                         <!-- <i data-feather="triangle" width="20"></i> -->
-                        <span>Stock Gudang</span>
-                    </a>
-                    <ul class="submenu ">
+                        <!-- <span>Stock Gudang</span> -->
+                    <!-- </a> -->
+                    <!-- <ul class="submenu "> -->
 
                         <!-- <li>
                             <a href="component-progress.html">Lihat History Lot</a>
@@ -209,11 +209,11 @@
                         <li>
                             <a href="component-spinners.html">Balik Transaksi Gudang</a>
                         </li> -->
-                        <li>
+                        <!-- <li>
                             <a href="<?php echo base_url('home/stokMorphing'); ?>">Stok Morphing</a>
                         </li>
                     </ul>
-                </li>
+                </li> -->
                 <!-- <li class="sidebar-title">Manajemen Pelanggan</li>
                 <li class="sidebar-item  has-sub">
                     <a href="#" class='sidebar-link'>
@@ -290,7 +290,7 @@
                         <span>Supplier</span>
                     </a>
                 </li> -->
-                <li class="sidebar-title">Kasir dan Bank</li>
+                <!-- <li class="sidebar-title">Kasir dan Bank</li> -->
                 <!-- <li class="sidebar-item  has-sub">
                     <a href="#" class='sidebar-link'>
                         <span>Bank</span>
@@ -304,7 +304,7 @@
                         </li>
                     </ul>
                 </li> -->
-                <li class="sidebar-item  has-sub">
+                <!-- <li class="sidebar-item  has-sub">
                     <a href="#" class='sidebar-link'>
                         <span>Transaksi</span>
                     </a>
@@ -328,15 +328,15 @@
                         <span>Auto Transaksi</span>
                     </a>
                     <ul class="submenu ">
-                        <li>
+                        <li> -->
                             <!-- <a href="<?php echo base_url('auto/autoTransfer'); ?>">Transaksi Auto</a> -->
-                            <a href="<?php echo base_url('home/cashierAuto'); ?>">Transaksi Auto Tunai</a>
+                            <!-- <a href="<?php echo base_url('home/cashierAuto'); ?>">Transaksi Auto Tunai</a>
                         </li>
                         <li>
                             <a href="http://192.168.4.95/wo_cashier/">Transaksi Auto Kredit</a>
                         </li>
                     </ul>
-                </li>
+                </li> -->
                 <!-- <li class="sidebar-item  has-sub">
                     <a href="#" class='sidebar-link'>
                         <span>Cek/Giro</span>
@@ -385,16 +385,16 @@
                         </li>
                         <li>
                             <a href="component-breadcrumb.html">Koreksi DO</a>
-                        </li>
+                        </li>-->
                         <li>
-                            <a href="component-alert.html">Proses Surat Tugas</a>
+                            <a href="<?php echo base_url('home/prosesSuratTugas'); ?>">Proses Surat Tugas</a>
                         </li>
-                        <li>
+                        <!-- <li>
                             <a href="component-breadcrumb.html">Surat Tugas</a>
                         </li>
                         <li>
                             <a href="component-breadcrumb.html">Feedback Surat Tugas</a>
-                        </li> -->
+                        </li>  -->
                         <li>
                             <a href="<?php echo base_url('home/permintaanBrg'); ?>">Permintaan Barang (PB)</a>
                         </li>

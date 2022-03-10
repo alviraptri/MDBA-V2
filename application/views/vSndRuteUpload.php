@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/index/css/bootstrap.css">
 
+    <link rel="stylesheet" href="<?= base_url() ?>assets/index/vendors/datatables-bootstrap5/datatables.bootstrap5.min.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/index/vendors/perfect-scrollbar/perfect-scrollbar.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/index/css/app.css">
     <link rel="shortcut icon" href="<?php echo base_url(); ?>assets/icon/favicon.ico" type="image/x-icon">
@@ -31,7 +32,7 @@
 </head>
 
 <body>
-    <script src="<?php echo base_url(); ?>assets/jquery/jquery.min.js"></script>
+    <!-- <script src="<?php echo base_url(); ?>assets/jquery/jquery.min.js"></script>
     <script src="<?php echo base_url(); ?>assets/jquery/bootstrap.min.js"></script>
     <script src="<?php echo base_url(); ?>assets/jquery/sweetalert2.min.js"></script>
     <?php if ($this->session->flashdata('success')) { ?>
@@ -62,7 +63,7 @@
                 title: 'Produk Tidak Boleh Sama',
             })
         </script>
-    <?php } ?>
+    <?php } ?> -->
     <div id="app">
         <?php include('sideBar.php'); ?>
         <div id="main">
@@ -78,7 +79,9 @@
                             <nav aria-label="breadcrumb" class='breadcrumb-header'>
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item"><a href="<?php echo base_url('home'); ?>">Dashboard</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Permintaan Barang</li>
+                                    <li class="breadcrumb-item active" aria-current="page">
+                                        <a href="<?php echo base_url('home/rute'); ?>">Rute</a>
+                                    </li>
                                 </ol>
                             </nav>
                         </div>
@@ -91,438 +94,267 @@
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4 class="card-title">Tambah Permintaan Barang</h4>
+                                    <h4 class="card-title">Upload Rute</h4>
                                 </div>
                                 <div class="card-content">
                                     <div class="card-body">
-                                        <form class="form" id="formId" action="<?php echo base_url('sndPB/simpanPB'); ?>" method="POST">
+                                        <form class="form" id="formId" action="<?php echo base_url('sndRute/uploadExcel'); ?>" method="POST" enctype="multipart/form-data">
                                             <div class="row">
-                                                <div class="col-md-4 col-12">
+                                                <div class="col-md-8 col-12">
                                                     <div class="form-group">
-                                                        <label for="first-name-column">No. Dokumen</label>
-                                                        <input type="text" id="noDoc" class="form-control" name="noDoc" readonly value="<?= $id; ?>">
+                                                        <label for="first-name-column">Upload Excel</label>
+                                                        <!-- <input type="file" class="form-control" id="pssRute" name="rutePss" accept=".xls" onchange="uploadFile()" multiple> -->
+                                                        <input type="file" class="form-control" id="file" name="file" accept=".xls">
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-4 col-12">
+                                                <div class="col-md-4 col-12" style="padding-top: 1.5em;">
                                                     <div class="form-group">
-                                                        <label for="last-name-column">Tanggal</label>
-                                                        <input type="date" id="idTgl" class="form-control" name="tgl" value="<?= date('Y-m-d'); ?>" required>
+                                                        <input type="submit" class="btn btn-primary me-1 mb-1" name="Preview" value="Preview">
                                                     </div>
                                                 </div>
-
-                                                <div class="col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="first-name-column">Status</label>
-                                                        <input type="text" id="idStatus" class="form-control" name="status" readonly value="<?= $status; ?>">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6 col-12">
-                                                    <div class="form-group">
-                                                        <label for="city-column">Gudang</label>
-                                                        <select class="js-example-basic-single col-md-6 form-select" name="gudang" id="idGudang">
-                                                            <option value="-" disabled>Pilih Gudang</option>
-                                                            <?php
-                                                            foreach ($warehouse as $value) { ?>
-                                                                <option value="<?= $value->szId; ?>"><?= $value->szId; ?> - <?= $value->szName; ?></option>
-                                                            <?php
-                                                            }
-                                                            ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6 col-12">
-                                                    <div class="form-group">
-                                                        <label for="city-column">Tipe Stok</label>
-                                                        <select class="js-example-basic-single col-md-6 form-select" name="stok" id="idStok">
-                                                            <option value="-" disabled>Pilih Tipe Stok</option>
-                                                            <?php
-                                                            foreach ($type as $value) { ?>
-                                                                <option value="<?= $value->szId; ?>"><?= $value->szId . " - " . $value->szName; ?></option>
-                                                            <?php
-                                                            }
-                                                            ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6 col-12">
-                                                    <div class="form-group">
-                                                        <label for="city-column">Pengemudi</label>
-                                                        <div class="row">
-                                                            <div class="col-12" style="padding-right: 0">
-                                                                <select class="js-example-basic-single col-md-6 form-select" name="pengemudi" id="idPengemudi" onchange="getVehicle()">
-                                                                    <option value="-" disabled>Pilih Pengemudi</option>
-                                                                    <option value=""></option>
-                                                                    <?php
-                                                                    foreach ($employee as $value) { ?>
-                                                                        <option value="<?= $value->szId; ?>"><?= $value->szId; ?> - <?= $value->szName ?></option>
-                                                                    <?php
-                                                                    }
-                                                                    ?>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6 col-12">
-                                                    <div class="form-group">
-                                                        <label for="city-column">Kendaraan</label>
-                                                        <div class="row">
-                                                            <div class="col-12" style="padding-right: 0">
-                                                                <select class="js-example-basic-single col-md-6 form-select" name="kendaraan" id="idKendaraan">
-                                                                    <option value="-" disabled>Pilih Kendaraan</option>
-                                                                    <option value=""></option>
-                                                                    <?php
-                                                                    foreach ($vehicle as $value) { ?>
-                                                                        <option value="<?= $value->szPoliceNo; ?>"><?= $value->szId; ?> - <?= $value->szPoliceNo ?></option>
-                                                                    <?php
-                                                                    }
-                                                                    ?>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="first-name-column">Kode KIT</label>
-                                                        <input type="text" id="key_kode" class="form-control" name="key_kode">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="last-name-column">Nama KIT</label>
-                                                        <div id="show_nama">
-                                                            <input type="text" class="form-control" name="" readonly>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="first-name-column">Qty</label>
-                                                        <input type="number" id="qty_kode" class="form-control" name="qty_kode" min="0">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-12 col-12">
-                                                    <table class='table table-striped view-this'>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>No.</th>
-                                                                <th>Kode Produk</th>
-                                                                <th>Qty</th>
-                                                                <th>Satuan</th>
-                                                                <th><button type="button" onclick="loadnew()" id="btn-tambah-form" class="btn btn-primary">+</button></th>
-                                                            </tr>
-                                                        </thead>
-
-                                                        <tbody id="show_data">
-
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-
-                                                <div class="col-md-6 col-12" id="addRow">
-
-                                                </div>
-
-                                                <div class="col-12 d-flex justify-content-end">
-                                                    <button type="submit" class="btn btn-primary me-1 mb-1">Submit</button>
-                                                    <a href="<?php echo base_url('home/permintaanBrg') ?>">
-                                                        <button type="button" class="btn btn-white me-1 mb-1">Cancel</button>
-                                                    </a>
-                                                </div>
-                                            </div>
                                         </form>
+
+                                        <?php
+                                        if (isset($_POST['Preview'])) {
+                                            if (isset($upload_error)) {
+                                        ?>
+                                                <script>
+                                                    Swal.fire({
+                                                        type: 'error',
+                                                        title: 'Maaf Upload Error',
+                                                    })
+                                                </script>
+                                            <?php
+                                            } else {
+                                            ?>
+                                                <form class="import" id="importId" action="<?php echo base_url('sndRute/importExcel'); ?>" method="POST">
+                                                    <div class="col-md-12 col-12">
+                                                        <table class='table table-striped view-this nowrap' id="tableRuteUpload">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>ID Rute</th>
+                                                                    <th>Nama PSS</th>
+                                                                    <th>Jenis Rute</th>
+                                                                    <th>ID Salesman</th>
+                                                                    <th>Ket</th>
+                                                                    <th>Kode Pel</th>
+                                                                    <th>Nama Pel</th>
+                                                                    <th>Sen</th>
+                                                                    <th>Sel</th>
+                                                                    <th>Rab</th>
+                                                                    <th>Kam</th>
+                                                                    <th>Jum</th>
+                                                                    <th>Sab</th>
+                                                                    <th>Min</th>
+                                                                    <th>W1</th>
+                                                                    <th>W2</th>
+                                                                    <th>W3</th>
+                                                                    <th>W4</th>
+                                                                </tr>
+                                                            </thead>
+
+                                                            <tbody id="show_data">
+                                                                <?php
+                                                                $size = sizeof($sheet);
+                                                                for ($index = 1; $index <= sizeof($sheet); $index++) {
+                                                                    if ($index == 1) {
+                                                                        continue;
+                                                                    } else {
+                                                                ?>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <?= $sheet[$index]['A'] ?>
+                                                                                <input type="hidden" name="size" value="<?= $size; ?>">
+                                                                                <input type="hidden" name="route" id="idRoute" value="<?= $sheet[$index]['A'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <?= $sheet[$index]['B'] ?>
+                                                                                <input type="hidden" name="routeName" id="idRouteName" value="<?= $sheet[$index]['B'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <?= $sheet[$index]['C'] ?>
+                                                                                <input type="hidden" name="routeType" id="idRouteType" value="<?= $sheet[$index]['C'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <?= $sheet[$index]['D'] ?>
+                                                                                <input type="hidden" name="salesman[]" id="idSalesman" value="<?= $sheet[$index]['D'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <?= $sheet[$index]['E'] ?>
+                                                                                <input type="hidden" name="description" id="idDescription" value="<?= $sheet[$index]['E'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <?= $sheet[$index]['F'] ?>
+                                                                                <input type="hidden" name="customer[]" id="idCustomer" value="<?= $sheet[$index]['F'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <?= $sheet[$index]['G'] ?>
+                                                                                <input type="hidden" name="customerName[]" id="idCustomerName" value="<?= $sheet[$index]['G'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckMon" <?= ($sheet[$index]['H'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="dayOne[]" id="idDayOne" value="<?= $sheet[$index]['H'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckTue" <?= ($sheet[$index]['I'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="dayTwo[]" id="idDayTwo" value="<?= $sheet[$index]['I'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckWed" <?= ($sheet[$index]['J'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="dayThree[]" id="idDayThree" value="<?= $sheet[$index]['J'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckThru" <?= ($sheet[$index]['K'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="dayFour[]" id="idDayFour" value="<?= $sheet[$index]['K'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckFri" <?= ($sheet[$index]['L'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="dayFive[]" id="idDayFive" value="<?= $sheet[$index]['L'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckSat" <?= ($sheet[$index]['M'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="daySix[]" id="idDaySix" value="<?= $sheet[$index]['M'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckFri" <?= ($sheet[$index]['L'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="daySeven[]" id="idDaySeven" value="<?= $sheet[$index]['N'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckW1" <?= ($sheet[$index]['O'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="weekOne[]" id="idWeekOne" value="<?= $sheet[$index]['O'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckW2" <?= ($sheet[$index]['P'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="weekTwo[]" id="idWeekTwo" value="<?= $sheet[$index]['P'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckW3" <?= ($sheet[$index]['Q'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="weekThree[]" id="idWeekThree" value="<?= $sheet[$index]['Q'] ?>">
+                                                                            </td>
+                                                                            <td>
+                                                                                <input class="form-check-input" type="checkbox" value="" id="myCheckW4" <?= ($sheet[$index]['R'] == '1') ? "checked" : ""; ?> disabled >
+                                                                                <input type="hidden" name="weekFour[]" id="idWeekFour" value="<?= $sheet[$index]['R'] ?>">
+                                                                            </td>
+                                                                        </tr>
+                                                                <?php
+                                                                    }
+                                                                }
+                                                                ?>
+
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <br>
+                                                    <div class="col-12 d-flex justify-content-end">
+                                                        <button type="submit" class="btn btn-primary me-1 mb-1">Submit</button>
+                                                        <a href="<?php echo base_url('home/rute') ?>">
+                                                            <button type="button" class="btn btn-white me-1 mb-1">Cancel</button>
+                                                        </a>
+                                                    </div>
+                                                </form>
+                                        <?php
+                                            }
+                                        }
+                                        ?>
+
+                                        <!-- <div class="col-md-12 col-12" style="overflow-x:auto;">
+                                            <table class='table table-striped view-this'>
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID Rute</th>
+                                                        <th>Nama PSS</th>
+                                                        <th>Jenis Rute</th>
+                                                        <th>ID Salesman</th>
+                                                        <th>Ket</th>
+                                                        <th>Kode Pel</th>
+                                                        <th>Nama Pel</th>
+                                                        <th>Sen</th>
+                                                        <th>Sel</th>
+                                                        <th>Rab</th>
+                                                        <th>Kam</th>
+                                                        <th>Jum</th>
+                                                        <th>Sab</th>
+                                                        <th>Min</th>
+                                                        <th>W1</th>
+                                                        <th>W2</th>
+                                                        <th>W3</th>
+                                                        <th>W4</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody id="show_data">
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="col-md-6 col-12" id="addRow">
+
+                                        </div>
+
+                                        <div class="col-12 d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary me-1 mb-1">Submit</button>
+                                            <a href="<?php echo base_url('home/rute') ?>">
+                                                <button type="button" class="btn btn-white me-1 mb-1">Cancel</button>
+                                            </a>
+                                        </div> -->
                                     </div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
-                <!-- // Basic multiple Column Form section end -->
             </div>
-
-            <footer>
-                <div class="footer clearfix mb-0 text-muted">
-                    <div class="float-start">
-                        <p>MDBA &copy; 2021</p>
-                    </div>
-                    <div class="float-end">
-                        <p>ICT Department, TVIP | ASA</p>
-                    </div>
-                </div>
-            </footer>
+            </section>
+            <!-- // Basic multiple Column Form section end -->
         </div>
+
+        <?php
+        if (isset($_POST['Preview'])) {
+            # code...
+        }
+        ?>
+
+        <footer>
+            <div class="footer clearfix mb-0 text-muted">
+                <div class="float-start">
+                    <p>MDBA &copy; 2021</p>
+                </div>
+                <div class="float-end">
+                    <p>ICT Department, TVIP | ASA</p>
+                </div>
+            </div>
+        </footer>
     </div>
+    </div>
+</body>
 
-    <script type="text/javascript" src="<?php echo base_url(); ?>assets/jquery-3.3.1.js"></script>
-    <script type="text/javascript">
-        function getInfo(x) {
-            var qty = parseInt(document.getElementById('idQty' + x).value);
-            var onHand = parseInt(document.getElementById('idOnHand' + x).value);
+<script src="<?php echo base_url(); ?>assets/jquery/jquery.min.js"></script>
+<script src="<?php echo base_url(); ?>assets/jquery-3.3.1.js"></script>
+<?php include 'js.php' ?>
+<script>
+    $(document).ready(function() {
+        $('#tableRuteUpload').DataTable({
+            responsive: true,
+            scrollX: true,
+            scrollCollapse: true
+        })
+    });
+    
+    function hanyaAngka(event) {
+        var angka = (event.which) ? event.which : event.keyCode
+        if (angka != 46 && angka > 31 && (angka < 48 || angka > 57))
+            return false;
+        return true;
+    }
 
-            if (onHand < qty) {
-                alert('Stok Tidak Ada');
-                $("#notif" + x).show();
-            } else {
-                $("#notif" + x).hide();
-            }
-        }
-
-        function getVehicle() {
-            var id = document.getElementById('idPengemudi').value;
-            $.ajax({
-                url: "<?= base_url('sndPB/vehicle') ?>",
-                method: "POST",
-                data: {
-                    id: id
-                },
-                async: true,
-                dataType: "JSON",
-                success: function(data) {
-                    var html = '';
-                    var i;
-                    for (var j = 0; j < data.vehicle.length; j++) {
-                        html = '<option value="' + data.vehicle[j].szPoliceNo + '" selected>' + data.vehicle[j].szVehicleId + ' - ' + data.vehicle[j].szPoliceNo + '</option>'
-
-                    }
-                    for (i = 0; i < data.kendaraan.length; i++) {
-                        html += '<option value="' + data.kendaraan[i].szPoliceNo + '">' + data.kendaraan[i].szId + ' - ' + data.kendaraan[i].szPoliceNo + '</option>'
-                    }
-                    $('#idKendaraan').html(html);
-                }
-            })
-        }
-
-        function getFormProduk(x) {
-            var produk = document.getElementById('idKode' + x).value;
-            var stok = document.getElementById('idStok').value;
-            var gudang = document.getElementById('idGudang').value;
-
-            $.ajax({
-                url: "<?= base_url('sndPB/getProduk') ?>",
-                method: "POST",
-                data: {
-                    produk: produk,
-                    stok: stok,
-                    gudang: gudang
-                },
-                async: true,
-                dataType: "JSON",
-                success: function(data) {
-                    for (var row of data) {
-                        document.getElementById('idSatuan' + x).value = row.szUomId;
-                        document.getElementById('idOnHand' + x).value = row.decQtyOnHand;
-                    }
-                }
-            })
-        }
-    </script>
-
-    <script type="text/javascript">  
-        var counter = 0;
-        // var counter = 0;
-        $("#notif" + counter).hide();
-        var num = 1;
-        var code = 0;
-        function loadnew() {
-            var count = this.code;
-            var newrow = $(".view-this");
-            var cols = "";
-            cols += "<tr id='baris" + count + "'>";
-            cols += "<td>" + this.num + "</td>";
-            cols += "<td>";
-            cols += "<select class='js-example-basic-single form-select' name='kode[]' id='idKode" + count + "' required onchange='getFormProduk(" + count + ")'>";
-            cols += "<option value='-' disabled>Pilih Produk</option>";
-            cols += "<option value=''></option>";
-            cols += "<?php foreach ($product as $value) { ?>";
-            cols += "<option value='<?= $value->szId; ?>'><?= $value->szId; ?> - <?= $value->szName; ?></option>";
-            cols += "<?php } ?>";
-            cols += "</select>";
-            cols += "</td>";
-            cols += "<td>";
-            cols += "<input name='qty[]' type='text' id='idQty" + count + "' class='form-control' onkeypress='return hanyaAngka(event)' autocomplete='off' required  onchange='getInfo(" + count + ")'>";
-            cols += "<input name='onHand[]' type='hidden' id='idOnHand" + count + "' class='form-control' onkeypress='return hanyaAngka(event)' autocomplete='off'>";
-            cols += "<label id='notif" + count + "' style='color: red;'>*Qty Lebih Besar dari Stok</label>";
-            cols += "</td>";
-            cols += "<td>";
-            cols += "<input name='satuan[]' type='text' id='idSatuan" + count + "' class='form-control' readonly>";
-            cols += "</td>";
-            cols += "<td>";
-            cols += "<a class='btn btn-danger' onclick='deleteRow(" + count + ")' style='color: white;'>-</a>";
-            cols += "</td>";
-            cols += "</tr>";
-            newrow.append(cols);
-            $("row").append(newrow);
-            $(".js-example-basic-single").select2();
-            $("#notif" + count).hide();
-            this.num++;
-            this.code++;
-            // this.counter++;
-            // console.log(this.counter);
-            // document.getElementById("counter").value = count;
-        }
-
-        function deleteRow(row) {
-            // this.counter -= 1;
-            this.num = this.num - 1;
-            // this.code = this.code -1;
-            var a = document.getElementById("baris" + row);
-            a.parentNode.removeChild(a);
-        }
-
-        function tampil_data_produk(){
-            var count = this.num;
-            var icode = this.code;
-            var key_kode=$('#key_kode').val();
-            var qty_kode=$('#qty_kode').val();
-            var gudang=$('#idGudang').val();
-            var stok=$('#idStok').val();
-            $.ajax({
-                type  : 'GET',
-                url   : '<?=base_url('sndPB/data_produk')?>',
-                async : true,
-                dataType : 'json',
-                data : {key_kode:key_kode, qty_kode:qty_kode, gudang:gudang, stok:stok},
-                success : function(data){
-                    var html = '';
-                    var i;
-                    var itemNumber = 0;
-                    for(i=0; i<data.length; i++){
-                        
-                        var no_item = itemNumber++;
-                        if (data[i].decQtyOnHand < data[i].qty ) {
-                            alert('Stok Tidak Ada');
-                            html += '<tr id="row_produk_new'+data[i].iInternalId+'">'+
-                            '<td>'+count+
-                            '<input type="hidden" name="kode[]" class="form-control" value="'+data[i].szId+'">'+
-                            '<input type="hidden" name="satuan[]" class="form-control" value="'+data[i].szUomId+'">'+
-                            '</td>'+
-                            '<td>'+data[i].szId+' - '+data[i].szName+'</td>'+
-                            '<td>'+
-                                '<input type="number" name="qty[]" class="form-control" min="0" value="'+data[i].qty+'" onchange="getInfo(' + i + ')">'+
-                                '<input name="onHand[]" type="hidden" id="idOnHand' + i + '" value="'+data[i].decQtyOnHand+'" class="form-control" onkeypress="return hanyaAngka(event)" autocomplete="off">'+
-                                '<label id="notif' + i + '" style="color: red;">*Qty Lebih Besar dari Stok</label>'+
-                            '</td>'+
-                            '<td>'+data[i].szUomId+'</td>'+
-                            '<td align="center">'+'<button type="button" name="remove" id="'+data[i].iInternalId+'" class="btn btn-danger btn_remove_produk_new" style="color: white;">-</button>'+'</td>'+
-                        '</tr>';
-                        }
-                        else{
-                        html += '<tr id="row_produk_new'+data[i].iInternalId+'">'+
-                            '<td>'+count+
-                            '<input type="hidden" name="kode[]" class="form-control" value="'+data[i].szId+'">'+
-                            '<input type="hidden" name="satuan[]" class="form-control" value="'+data[i].szUomId+'">'+
-                            '</td>'+
-                            '<td>'+data[i].szId+' - '+data[i].szName+'</td>'+
-                            '<td>'+
-                                '<input type="number" name="qty[]" class="form-control" min="0" value="'+data[i].qty+'" onchange="getInfo(' + i + ')">'+
-                                '<input name="onHand[]" type="hidden" id="idOnHand' + i + '" value="'+data[i].decQtyOnHand+'" class="form-control" onkeypress="return hanyaAngka(event)" autocomplete="off">'+
-                            '</td>'+
-                            '<td>'+data[i].szUomId+'</td>'+
-                            '<td align="center">'+'<button type="button" name="remove" id="'+data[i].iInternalId+'" class="btn btn-danger btn_remove_produk_new" style="color: white;">-</button>'+'</td>'+
-                        '</tr>';
-                        }
-                        count++;
-                        icode++;
-                    }
-
-                    num = count;
-                    code = icode;
-                    $('#show_data').append(html);
-
-                    $(document).on('click', '.btn_remove_produk_new', function(){  
-                       var button_new = $(this).attr("id");   
-                       $('#row_produk_new'+button_new+'').remove();  
-                    }); 
-
-                }
-
-            });
-            
-        }
-    </script>
-
-    <script>
-        function hanyaAngka(event) {
-            var angka = (event.which) ? event.which : event.keyCode
-            if (angka != 46 && angka > 31 && (angka < 48 || angka > 57))
-                return false;
-            return true;
-        }
-
-        $('#formId').on('keyup keypress', function(e) {
-            var keyCode = e.keyCode || e.which;
-            if (keyCode === 13) {
-                e.preventDefault();
-                return false;
-            }
+    $(document).ready(function() {
+        $('.js-example-basic-single').select2({
+            placeholder: "Pilih"
         });
-    </script>
-
-    <script type="text/javascript">
-        $(document).ready(function(){  
-            $(this).keydown(function(e) {
-                if (e.keyCode == 13) {
-                    e.preventDefault();
-                    tampil_data_produk();
-                    tampil_nama_kit();
-                }
-            });
-
-        });  
-
-        
-
-        function tampil_nama_kit(){
-            var key_kode=$('#key_kode').val();
-            $.ajax({
-                type  : 'GET',
-                url   : '<?=base_url('sndPB/nama_kit')?>',
-                async : true,
-                dataType : 'json',
-                data : {key_kode:key_kode},
-                success : function(data){
-                    var html = '';
-                    var i;
-                    for(i=0; i<data.length; i++){
-                        // html += '<input type="text" name="" class="form-control" value="'+data[i].nama_kode+'" readonly>';
-                        html += '<input type="text" id="show_nama" class="form-control" name="" value="'+data[i].szName+'" readonly>';
-                        // html += data[i].nama_kode;
-                    }
-                    $('#show_nama').html(html);
-
-                }
-
-            });
-        }
-    </script>
-
-    <script src="<?php echo base_url(); ?>assets/index/js/feather-icons/feather.min.js"></script>
-    <script src="<?php echo base_url(); ?>assets/index/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-    <script src="<?php echo base_url(); ?>assets/index/js/app.js"></script>
-    <script src="<?php echo base_url(); ?>assets/index/js/main.js"></script>
-    <script src="<?php echo base_url(); ?>assets/jquery/jquery.min.js"></script>
-    <script src="<?php echo base_url(); ?>assets/jquery/bootstrap.min.js"></script>
-    <script src="<?php echo base_url(); ?>assets/jquery/sweetalert2.min.js"></script>
-
-    <!-- SELECT2 -->
-    <script src="<?php echo base_url(); ?>assets/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.js-example-basic-single').select2({
-                placeholder: "Pilih"
-            });
-        });
-    </script>
+    });
+</script>
 </body>
 
 </html>
