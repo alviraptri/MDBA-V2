@@ -935,31 +935,13 @@ class mHome extends CI_Model
     {
         $depo = $this->session->userdata('user_branch');
         if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'dummymdbaasa';
+            $base = 'dms111asa';
         } else {
-            $base = 'dummymdbatvip';
+            $base = 'dms111tvip';
         }
-        $query = $this->db->query("SELECT a.szId, a.`szName`, a.`szRouteType`, FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 AS weeks, DAYNAME(CURDATE()) AS days  
-        FROM $base.`dms_sd_route` a
-        LEFT JOIN $base.`dms_sd_routeitem` b ON a.`szId` = b.`szId`
-        WHERE a.`szId` LIKE '$depo-%'
-        AND CASE WHEN DAYNAME(CURDATE()) = 'Monday' THEN b.`intDay1` = '1' 
-                        WHEN DAYNAME(CURDATE()) = 'Tuesday' THEN b.`intDay2` = '1'
-                        WHEN DAYNAME(CURDATE()) = 'Wednesday' THEN b.`intDay3` = '1'  
-                        WHEN DAYNAME(CURDATE()) = 'Thrusday' THEN b.`intDay4` = '1'
-                        WHEN DAYNAME(CURDATE()) = 'Friday' THEN b.`intDay5` = '1'
-                        WHEN DAYNAME(CURDATE()) = 'Saturday' THEN b.`intDay6` = '1'
-                        WHEN DAYNAME(CURDATE()) = 'Sunday' THEN b.`intDay7` = '1'
-                        ELSE FALSE
-                    END 
-                AND CASE WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '1' THEN b.`intWeek1` = '1' 
-                        WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '2' THEN b.`intWeek2` = '1'
-                        WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '3' THEN b.`intWeek3` = '1'  
-                        WHEN FLOOR((DAYOFMONTH(CURDATE())-1)/7)+1 = '4' THEN b.`intWeek4` = '1'
-                        ELSE FALSE
-                    END 
-                GROUP BY a.`szId`, a.`szRouteType`
-                ORDER BY A.szName ASC
+        $query = $this->db->query("SELECT a.`szDocId`, a.`szRouteType`, a.`szEmployeeId`, b.`szName` FROM $base.`dms_sd_doccall` a
+        LEFT JOIN $base.`dms_pi_employee` b ON a.`szEmployeeId` = b.`szId`
+        WHERE a.`szBranchId` = '$depo' AND a.`dtmDoc` >= CURDATE() AND a.`dtmDoc` < CURDATE() + INTERVAL 1 DAY 
         ");
         if ($query->num_rows() > 0) {
             $res = $query->result();

@@ -332,6 +332,6 @@ class home extends CI_Controller
     function prosesSuratTugas()
     {
         $data['data'] = $this->mHome->prosesSuratTugas();
-        $this->load->view('vSndProsesST');
+        $this->load->view('vSndProsesST', $data);
     }
 }
