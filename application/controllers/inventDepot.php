@@ -1109,126 +1109,136 @@ class inventDepot extends CI_Controller
 
     function updateBtb()
     {
-        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'dummymdbaasa';
-        } else {
-            $base = 'dummymdbatvip';
-        }
-        $btbOld = $this->input->post('btbOld');
-        $bkb = $this->input->post('bkb');
-        $tgl = $this->input->post('tgl');
-        $asal = $this->input->post('asal');
-        $gudang = $this->input->post('gudang');
-        $stok = $this->input->post('stok');
-        $pengemudi = $this->input->post('pengemudi');
-        $kendaraan = $this->input->post('kendaraan');
-        $keterangan = $this->input->post('keterangan');
-        $kode = $this->input->post('kode');
-        $qty = $this->input->post('qty');
-        $satuan = $this->input->post('satuan');
-
         $depo = $this->session->userdata('user_branch');
         if ($depo == '321' || $depo == '336' || $depo == '324') {
             $dept = 'ASA';
+            $base = 'dummymdbaasa';
         } else {
             $dept = 'TVIP';
+            $base = 'dummymdbatvip';
         }
 
-        if ($gudang == '' || $stok == '' || $pengemudi == '' || $kendaraan == '' || $kode[0] == '') {
-            $this->session->set_flashdata('warning', 'Mohon Input Data Dengan Benar');
-            header('Location: ' . base_url('inventDepot/editBtb/' . $btbOld));
-            exit;
-        } else {
-            $id = 'BTBDEPO' . $depo . 'COU';
-            $btb = $this->mInventDist->getId($id);
-            //update counter
-            $countBtb = $this->mInventDepot->getCounter($id);
-            $updateCountBtb = array('intLastCounter' => $countBtb);
-            $whereCountBtb = array('szId' => $id);
-            $counterUpdate = $this->mInventDepot->updateData($whereCountBtb, $updateCountBtb, $base . '.dms_sm_counter');
-            $counterUpdateDms = $this->mInventDepot->updateDms($whereCountBtb, $updateCountBtb, 'dmstesting.dms_sm_counter');
+        $btbOld = $this->input->post('btbOld');
+        $keterangan = $this->input->post('keterangan');
 
-            $adjustment = 'ADJ' . $depo . 'COU';
-            $adj = $this->mInventDepot->getId($adjustment);
-            //update counter
-            $counterAdj = $this->mInventDepot->getCounter($id);
-            $updateCountAdj = array('intLastCounter' => $counterAdj);
-            $whereCountAdj = array('szId' => $adjustment);
-            $counterUpdate = $this->mInventDepot->updateData($whereCountAdj, $updateCountAdj, $base . '.dms_sm_counter');
-            $counterUpdateDms = $this->mInventDepot->updateDms($whereCountAdj, $updateCountAdj, 'dmstesting.dms_sm_counter');
+        $btb = 'BTBDEPO' . $depo . 'COU';
+        $btbCancel = $this->mInventDepot->getId($btb);
 
-            $edit = $this->mInventDepot->editBtb($btbOld);
-            $prodOld = '';
-            foreach ($edit as $value) {
-                $updHistoryOld = array(
-                    'decQtyOnHand' => -$value->decQty,
-                    'szDocId' => $btb,
-                    'szUserUpdatedId' => $this->session->userdata('user_nik'),
-                    'dtmLastUpdated' => date('Y-m-d H:i:s')
-                );
+        $adjustment = 'ADJ' . $depo . 'COU';
+        $adjNo = $this->mInventDepot->getId($adjustment);
 
-                $whereHistoryOld = array(
-                    'szDocId' => $btbOld,
-                    'szProductId' => $value->szProductId
-                );
-                $historyBtbOld = $this->mInventDepot->updateData($updHistoryOld, $whereHistoryOld, $base . '.dms_inv_stockHistory');
-                $historyBtbOldDms = $this->mInventDepot->updateDms($updHistoryOld, $whereHistoryOld, 'dmstesting.dms_inv_stockHistory');
+        $result = $this->mInventDepot->editBtb($btbOld);
 
-                $prodOld .= "'" . $value->szProductId . "',";
-                $stokOld = $value->szStockType;
-                $gudangOld = $value->szWarehouseId;
+        // update counter
+        $cBtbCancel = $this->mInventDepot->getCounter($btb);
+        $cUpdBtbCancel = array(
+            'intLastCounter' => $cBtbCancel,
+            'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+            'dtmLastUpdated' => date('Y-m-d H:i:s')
+        );
+        $cWhereBtbCancel = array('szId' => $btb);
+        // $cBtbCancelUpd = $this->mInventDepot->updateData($cWhereBtbCancel, $cUpdBtbCancel, $base . '.dms_sm_counter');
+        // $cBtbCancelUpd = $this->mInventDepot->updateDms($cWhereBtbCancel, $cUpdBtbCancel, 'dmstesting.dms_sm_counter');
 
-                $updDetailOld = array(
-                    'decQty' => -$value->decQty,
-                    'szDocId' => $btb,
-                );
+        //insert header cancel btb qty -
+        foreach ($result as $key) {
+            $szPartyId = $key->szPartyId;
+            $szWarehouseId = $key->szWarehouseId;
+            $szStockType = $key->szStockType;
+            $szEmployeeId = $key->szEmployeeId;
+            $szVehicleId = $key->szVehicleId;
+            $szDescription = $key->szDescription;
+        }
 
-                $whereDetailOld = array(
-                    'szDocId' => $btbOld,
-                    'szProductId' => $value->szProductId
-                );
-                $detBtbOld = $this->mInventDepot->updateData($whereDetailOld, $updDetailOld, $base . '.dms_inv_docstockinbranchitem');
-                $detBtbOldDms = $this->mInventDepot->updateDms($whereDetailOld, $updDetailOld, 'dmstesting.dms_inv_docstockinbranchitem');
+        $inHeader = array(
+            'iId' => $this->uuid->v4(),
+            'szDocId' => $btbCancel,
+            'dtmDoc' => date('Y-m-d'),
+            'szPartyId' => $szPartyId,
+            'szWarehouseId' => $szWarehouseId,
+            'szStockType' => $szStockType,
+            'szEmployeeId' => $szEmployeeId,
+            'szVehicleId' => $szVehicleId,
+            'intPrintedCount' => '0',
+            'szBranchId' => $this->session->userdata('user_branch'),
+            'szCompanyId' => $dept,
+            'szDocStatus' => 'Applied',
+            'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+            'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+            'dtmCreated' => date('Y-m-d H:i:s'),
+            'dtmLastUpdated' => date('Y-m-d H:i:s'),
+            'szDescription' => 'No Ref BTB'. $btbOld . ', Keterangan: '. $szDescription . '<br>' . 'Adjustment Karena: ' . $keterangan,
+        );
+        // $dataHeadCancel = $this->mInventDepot->simpanData($inHeader, $base . '.dms_inv_docstockinbranch');
+        // $dataHeadCancelDms = $this->mInventDepot->simpanDms($inHeader, 'dmstesting.dms_inv_docstockinbranch');
 
-                $updOldBtb = array(
-                    'szDocId' => $btb
-                );
+        $int = 0;
+        $getProduk = '';
+        foreach ($result as $key) {
+            $inDetail = array(
+                'iId' => $this->uuid->v4(),
+                'szDocId' => $btbCancel,
+                'intItemNumber' => $int,
+                'szProductId' => $key->szProductId,
+                'decQty' => -$key->decQty,
+                'szUomId' => $key->szUomId
+            );
+            // $dataDetCancel = $this->mInventDepot->simpanData($inDetail, $base . '.dms_inv_docstockinbranchitem');
+            // $dataDetCancelDms = $this->mInventDepot->simpanDms($inDetail, 'dmstesting.dms_inv_docstockinbranchitem');
 
-                $whereOldBtb = array(
-                    'szDocId' => $btbOld
-                );
-                $oldUpd = $this->mInventDepot->updateData($whereOldBtb, $updOldBtb, $base . '.dms_inv_docstockinbranch');
-                $btbOldUpd = $this->mInventDepot->updateDms($whereOldBtb, $updOldBtb, 'dmstesting.dms_inv_docstockinbranch');
-            }
+            $inHistory = array(
+                'iId' => $this->uuid->v4(),
+                'szProductId' => $key->szProductId,
+                'szLocationType' => 'WAREHOUSE',
+                'szLocationId' => $key->szWarehouseId,
+                'szStockTypeId' => $key->szStockType,
+                'szReportedAsId' => $this->session->userdata('user_branch'),
+                'decQtyOnHand' => -$key->decQty,
+                'szUomId' => $key->szUomId,
+                'dtmTransaction' => date('Y-m-d'),
+                'szTrnId' => 'DMSDocStockInBranch',
+                'szDocId' => $btbCancel,
+                'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+                'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+                'dtmCreated' => date('Y-m-d H:i:s'),
+                'dtmLastUpdated' => date('Y-m-d H:i:s')
+            );
+            // $dataHistCancel = $this->mInventDepot->simpanData($inHistory, $base . '.dms_inv_stockhistory');
+            // $dataHistCancelDms = $this->mInventDepot->simpanDms($inHistory, 'dmstesting.dms_inv_stockhistory');
 
-            $lenOld = strlen($prodOld);
-            $oldProd = substr($prodOld, 0, $lenOld - 1);
+            $int++;
+            $getProduk .= "'" . $key->szProductId . "',";
+        }
+        $pdLen = strlen($getProduk);
+        $prods = substr($getProduk, 0, $pdLen - 1);
 
-            $warehouseOld = "'" . $gudangOld . "'";
-            $stockOld = "'" . $stokOld . "'";
-            $OnHandOld = $this->mInventDepot->stockOnHand($oldProd, $warehouseOld, $stockOld);
-            if ($OnHandOld != '0') {
-                foreach ($OnHandOld as $value) {
-                    foreach ($edit as $row) {
-                        if ($value->szProductId == $row->szProductId) {
-                            $updOnHandOld = array(
-                                'decQtyOnHand' => (int)$value->decQtyOnHand - (int)$row->decQty,
-                                'szUserUpdatedId' => $this->session->userdata('user_nik'),
-                                'dtmLastUpdated' => date('Y-m-d H:i:s')
-                            );
-                            $whereOnHandOld = array(
-                                'szProductId' => $row->szProductId,
-                                'szStockTypeId' => $stok,
-                                'szReportedAsId' => $this->session->userdata('user_branch'),
-                                'szLocationId' => $gudang
-                            );
-                        }
+        //update stock jadi minus
+        $OnHandG = $this->mInventDepot->stockOnHand($prods, $szWarehouseId, $szStockType);
+        if ($OnHandG != '0') {
+            foreach ($OnHandG as $value) {
+                foreach ($result as $key) {
+                    if ($value->szProductId == $key->szProductId) {
+                        $updOnHandG = array(
+                            'decQtyOnHand' => (int)$value->decQtyOnHand - (int)$key->decQty,
+                            'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+                            'dtmLastUpdated' => date('Y-m-d H:i:s')
+                        );
+                        $whereOnHandG = array(
+                            'szProductId' => $key->szProductId,
+                            'szStockTypeId' => $key->szStockType,
+                            'szReportedAsId' => $this->session->userdata('user_branch'),
+                            'szLocationId' => $key->szWarehouseId
+                        );
                     }
-                    $onHandUpdateOld = $this->mInventDepot->updateData($whereOnHandOld, $updOnHandOld, $base . '.dms_inv_stockonhand');
-                    $onHandUpdateOldDms = $this->mInventDepot->updateDms($whereOnHandOld, $updOnHandOld, 'dmstesting.dms_inv_stockonhand');
                 }
-            } else {
-                foreach ($OnHandOld as $key) {
+                // echo "<pre> updOnHandG :".var_export($updOnHandG, true)."</pre>";
+                // echo "<pre> whereOnHandG :".var_export($whereOnHandG, true)."</pre>";
+                // $onHandUpdateG = $this->mInventDepot->updateData($whereOnHandG, $updOnHandG, $base . '.dms_inv_stockonhand');
+                // $onHandUpdateGDms = $this->mInventDepot->updateDms($whereOnHandG, $updOnHandG, 'dmstesting.dms_inv_stockonhand');
+            }
+        } else {
+            foreach ($OnHandG as $key) {
+                foreach ($result as $key) {
                     $onHandOld = array(
                         'iId' => $this->uuid->v4(),
                         'szProductId' => $key->szProductId,
@@ -1238,178 +1248,71 @@ class inventDepot extends CI_Controller
                         'szReportedAsId' => $this->session->userdata('user_branch'),
                         'decQtyOnHand' => '0',
                         'szUomId' => $key->szUomId,
-                        'szUserCreatedId' => $this->session->userdata('user_nik'),
-                        'szUserUpdatedId' => $this->session->userdata('user_nik'),
+                        'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+                        'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
                         'dtmCreated' => date('Y-m-d H:i:s'),
                         'dtmLastUpdated' => date('Y-m-d H:i:s')
                     );
-                    $insertOnHandOld = $this->mInventSupp->simpanData($onHandOld, $base . '.dms_inv_stockonhand');
                 }
+                $insertOnHandOld = $this->mInventDepot->simpanData($onHandOld, $base . '.dms_inv_stockonhand');
             }
+        }
 
-            if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-                $dept = 'ASA';
-            } else {
-                $dept = 'TVIP';
-            }
+        // update counter adjustment
+        $aBtbCancel = $this->mInventDepot->getCounter($adjustment);
+        $aUpdBtbCancel = array(
+            'intLastCounter' => $aBtbCancel,
+            'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+            'dtmLastUpdated' => date('Y-m-d H:i:s')
+        );
+        $aWhereBtbCancel = array('szId' => $adjustment);
+        // $aBtbCancelUpd = $this->mInventDepot->updateData($aWhereBtbCancel, $aUpdBtbCancel, $base . '.dms_sm_counter');
+        // $aBtbCancelUpd = $this->mInventDepot->updateDms($aWhereBtbCancel, $aUpdBtbCancel, 'dmstesting.dms_sm_counter');
 
-            $adjRefDoc = array(
+        //adjustment
+        $adjustHeader = array(
+            'iId' => $this->uuid->v4(),
+            'szDocId' => $adjNo,
+            'dtmDoc' => date('Y-m-d'),
+            'szRefTypeDoc' => 'DMSDocStockInBranch',
+            'szRefDocId' => $btbOld,
+            'szRefDoc' => $keterangan,
+            'intPrintedCount' => '0',
+            'szBranchId' => $this->session->userdata('user_branch'),
+            'szCompanyId' => $dept,
+            'szDocStatus' => 'Applied',
+            'szUserCreatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+            'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+            'dtmCreated' => date('Y-m-d H:i:s'),
+            'dtmLastUpdated' => date('Y-m-d H:i:s'),
+        );
+        // $dataHeadAdjust = $this->mInventDepot->simpanData($adjustHeader, $base . '.dms_inv_docstockadjustment');
+        // $dataHeadAdjustDms = $this->mInventDepot->simpanDms($adjustHeader, 'dmstesting.dms_inv_docstockadjustment');
+
+        $adjustRef = array(
+            'iId' => $this->uuid->v4(),
+            'szDocId' => $adjNo,
+            'szRefDocId' => $btbOld,
+            'szRefDocTypeId' => 'DMSDocStockInBranch',
+            'szAdjustmentId' => $adjustment
+        );
+        // $dataRefAdjust = $this->mInventDepot->simpanData($adjustRef, $base . '.dms_inv_stockadjustmentrefdoc');
+        // $dataRefAdjustDms = $this->mInventDepot->simpanDms($adjustRef, 'dmstesting.dms_inv_stockadjustmentrefdoc');
+
+        $num = 0;
+        foreach ($result as $key) {
+            $adjustDetail = array(
                 'iId' => $this->uuid->v4(),
-                'szDocId' => $adj,
-                'szRefDocId' => $btbOld,
-                'szRefDocTypeId' => 'DMSDocStockInBranch',
-                'szAdjustmentId' => $btb
+                'szDocId' => $adjNo, 
+                'intItemNumber' => $num,
+                'szProductId' => $key->szProductId,
+                'decQty' => $key->decQty,
+                'szUomId' => $key->szUomId
             );
-            $refDocAdj = $this->mInventDepot->simpanData($adjRefDoc, $base . '.dms_inv_stockadjustmentrefdoc');
-            $refDocAdjDms = $this->mInventDepot->simpanDms($adjRefDoc, 'dmstesting.dms_inv_stockadjustmentrefdoc');
+            // $dataDetAdjust = $this->mInventDepot->simpanData($adjustDetail, $base . '.dms_inv_docstockadjustmentitem');
+            // $dataDetAdjustDms = $this->mInventDepot->simpanDms($adjustDetail, 'dmstesting.dms_inv_docstockadjustmentitem');
 
-            $adjustmentHeader = array(
-                'iId' => $this->uuid->v4(),
-                'szDocId' => $adj,
-                'dtmDoc' => $tgl,
-                'szRefTypeDoc' => 'DMSDocStockInBranch',
-                'szRefDocId' => $btbOld,
-                'szDescription' => $keterangan,
-                'intPrintedCount' => '0',
-                'szBranchId' => $this->session->userdata('user_branch'),
-                'szCompanyId' => $dept,
-                'szDocStatus' => 'Applied',
-                'szUserCreatedId' => $this->session->userdata('user_nik'),
-                'szUserUpdatedId' => $this->session->userdata('user_nik'),
-                'dtmCreated' => date('Y-m-d H:i:s'),
-                'dtmLastUpdated' => date('Y-m-d H:i:S')
-            );
-            $headAdj = $this->mInventDepot->simpanData($adjustmentHeader, $base . '.dms_inv_docstockadjustment');
-            $headAdjDms = $this->mInventDepot->simpanDms($adjustmentHeader, 'dmstesting.dms_inv_docstockadjustment');
-
-            $headBtb = array(
-                'iId' => $this->uuid->v4(),
-                'szDocId' => $btbOld,
-                'dtmDoc' => $tgl,
-                'szPartyId' => $asal,
-                'szWarehouseId' => $gudang,
-                'szStockType' => $stok,
-                'szEmployeeId' => $pengemudi,
-                'szVehicleId' => $kendaraan,
-                'intPrintedCount' => '0',
-                'szBranchId' => $this->session->userdata('user_branch'),
-                'szCompanyId' => $dept,
-                'szDocStatus' => 'Applied',
-                'szUserCreatedId' => $this->session->userdata('user_nik'),
-                'szUserUpdatedId' => $this->session->userdata('user_nik'),
-                'dtmCreated' => date('Y-m-d H:i:s'),
-                'dtmLastUpdated' => date('Y-m-d H:i:s'),
-                'szDescription' => $keterangan
-            );
-            $btbHeader = $this->mInventDepot->simpanData($headBtb, $base . '.dms_inv_docstockinbranch');
-            $btbHeaderDms = $this->mInventDepot->simpanDms($headBtb, 'dmstesting.dms_inv_docstockinbranch');
-
-            $getProduk = '';
-            for ($j = 0; $j < count($kode); $j++) {
-                $detBtb = array(
-                    'iId' => $this->uuid->v4(),
-                    'szDocId' => $btbOld,
-                    'intItemNumber' => $j,
-                    'szProductId' => $kode[$j],
-                    'decQty' => $qty[$j],
-                    'szUomId' => $satuan[$j]
-                );
-                $bkbDetail = $this->mInventDepot->simpanData($detBtb, $base . '.dms_inv_docstockinbranchitem');
-                $bkbDetailDms = $this->mInventDepot->simpanDms($detBtb, 'dmstesting.dms_inv_docstockinbranchitem');
-
-                $historyGdg = array(
-                    'iId' => $this->uuid->v4(),
-                    'szProductId' => $kode[$j],
-                    'szLocationType' => 'WAREHOUSE',
-                    'szLocationId' => $gudang,
-                    'szStockTypeId' => $stok,
-                    'szReportedAsId' => $depo,
-                    'decQtyOnHand' => $qty[$j],
-                    'szUomId' => $satuan[$j],
-                    'dtmTransaction' => $tgl,
-                    'szTrnId' => 'DMSDocStockInBranch',
-                    'szDocId' => $btbOld,
-                    'szUserCreatedId' => $this->session->userdata('user_branch'),
-                    'szUserUpdatedId' => $this->session->userdata('user_branch'),
-                    'dtmCreated' => date('Y-m-d H:i:s'),
-                    'dtmLastUpdated' => date('Y-m-d H:i:s')
-                );
-                $gdgHistory = $this->mInventDepot->simpanData($historyGdg, $base . '.dms_inv_stockhistory');
-                $gdgHistoryDms = $this->mInventDepot->simpanDms($historyGdg, 'dmstesting.dms_inv_stockhistory');
-
-                $detAdjustment = array(
-                    'iId' => $this->uuid->v4(),
-                    'szDocId' => $adj,
-                    'intItemNumber' => $j,
-                    'szProductId' => $kode[$j],
-                    'decQty' => $qty[$j],
-                    'szUomId' => $satuan[$j]
-                );
-                $detAdjustment = $this->mInventDepot->simpanData($detAdjustment, $base . '.dms_inv_docstockadjustmentitem');
-                $detAdjustmentDms = $this->mInventDepot->simpanDms($detAdjustment, 'dmstesting.dms_inv_docstockadjustmentitem');
-
-                $getProduk .= "'" . $kode[$j] . "',";
-            }
-
-            $cekLen = strlen($getProduk);
-            $product = substr($getProduk, 0, $cekLen - 1);
-
-            $warehouseG = "'" . $gudang . "'";
-            $stockG = "'" . $stok . "'";
-            $OnHandG = $this->mInventDepot->stockOnHand($product, $warehouseG, $stockG);
-            if ($OnHandG != '') {
-                foreach ($OnHandG as $value) {
-                    for ($i = 0; $i < count($kode); $i++) {
-                        if ($value->szProductId == $kode[$i]) {
-                            $updOnHandG = array(
-                                'decQtyOnHand' => (int)$value->decQtyOnHand + (int)$qty[$i],
-                                'szUserUpdatedId' => $this->session->userdata('user_nik'),
-                                'dtmLastUpdated' => date('Y-m-d H:i:s')
-                            );
-                            $whereOnHandG = array(
-                                'szProductId' => $kode[$i],
-                                'szStockTypeId' => $stok,
-                                'szReportedAsId' => $this->session->userdata('user_branch'),
-                                'szLocationId' => $gudang
-                            );
-                        }
-                    }
-                    $onHandUpdateG = $this->mInventDepot->updateData($whereOnHandG, $updOnHandG, $base . '.dms_inv_stockonhand');
-                    $onHandUpdateGDms = $this->mInventDepot->updateDms($whereOnHandG, $updOnHandG, 'dmstesting.dms_inv_stockonhand');
-                }
-            } else {
-                foreach ($OnHandG as $value) {
-                    for ($i = 0; $i < count($kode); $i++) {
-                        $onHandNew = array(
-                            'iId' => $this->uuid->v4(),
-                            'szProductId' => $key->szProductId,
-                            'szLocationType' => 'WAREHOUSE',
-                            'szLocationId' => $key->szWarehouseId,
-                            'szStockTypeId' => $key->szStockTypeId,
-                            'szReportedAsId' => $this->session->userdata('user_branch'),
-                            'decQtyOnHand' => $qty[$i],
-                            'szUomId' => $key->szUomId,
-                            'szUserCreatedId' => $this->session->userdata('user_nik'),
-                            'szUserUpdatedId' => $this->session->userdata('user_nik'),
-                            'dtmCreated' => date('Y-m-d H:i:s'),
-                            'dtmLastUpdated' => date('Y-m-d H:i:s')
-                        );
-                        $insertOnHandOld = $this->mInventSupp->simpanData($onHandNew, $base . '.dms_inv_stockonhand');
-                    }
-                }
-            }
-
-            if ($detBtbOld == 'true' && $refDocAdj == 'true' && $headAdj == 'true' && $btbHeader == 'true' && $bkbDetail == 'true' && $gdgHistory == 'true' && $detAdjustment == 'true') {
-                // $this->mInventDepot->updateData($whereCount, $updateCount, $base.'.dms_sm_counter');
-                // $this->mInventDepot->updateData($whereOnHandG, $updOnHandG, $base.'.dms_inv_stockonhand');
-                $this->session->set_flashdata('success', 'Data Sudah Tersimpan');
-                header('Location: ' . base_url('inventDepot/historyBtb'));
-                exit;
-            } else {
-                $this->session->set_flashdata('error', 'Data Gagal Tersimpan');
-                header('Location: ' . base_url('inventDepot/editBtb/' . $btbOld));
-                exit;
-            }
+            $num++;
         }
     }
 
@@ -1432,7 +1335,9 @@ class inventDepot extends CI_Controller
         $depo = $this->session->userdata('user_branch');
 
         $btb = 'BTBDEPO' . $depo . 'COU';
-        $data['btb'] = $this->mInventDist->getId($btb);
+        $data['btb'] = $this->mInventDepot->getId($btb);
+        $data['btbAdj'] = $this->mInventDist->getIdAdj($btb);
+
         $adjustment = 'ADJ' . $depo . 'COU';
         $data['adjustment'] = $this->mInventDepot->getId($adjustment);
 

@@ -207,6 +207,7 @@
                                                                 <th>Pelanggan</th>
                                                                 <th>Detail SO</th>
                                                                 <th>Qty</th>
+                                                                <th>Luar Rute</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="table_body" class="view-this">
@@ -220,6 +221,7 @@
                                                                     <td><?= $value->szCustomerId; ?> - <?= $value->custName; ?></td>
                                                                     <td><?= $value->szProductId; ?> - <?= $value->prodName; ?></td>
                                                                     <td><?= $value->decQty; ?></td>
+                                                                    <td><input class="form-check-input" type="checkbox" value="" id="checkList" <?= ($value->bOutOfRoute == '1') ? "checked" : ""; ?> disabled ></td>
                                                                 </tr>
                                                             <?php
                                                                 $no++;
@@ -265,6 +267,7 @@
                                                                     <th>No.</th>
                                                                     <th>No. DO</th>
                                                                     <th>Pelanggan</th>
+                                                                    <th>Luar Rute</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody id="table_body" class="view-this">
@@ -275,6 +278,7 @@
                                                                         <td><?= $no; ?></td>
                                                                         <td><?= $value->szDocDO; ?></td>
                                                                         <td><?= $value->szCustomerId; ?> - <?= $value->custName; ?></td>
+                                                                        <td><input class="form-check-input" type="checkbox" value="" id="checkList" <?= ($value->bOutOfRoute == '1') ? "checked" : ""; ?> disabled ></td>
                                                                     </tr>
                                                                 <?php
                                                                     $no++;
@@ -292,6 +296,7 @@
                                                                 <th>No.</th>
                                                                 <th>No. SO</th>
                                                                 <th>Pelanggan</th>
+                                                                <th>Luar Rute</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="table_body" class="view-this">
@@ -302,6 +307,7 @@
                                                                     <td><?= $no; ?></td>
                                                                     <td><?= $value->szDocSO; ?></td>
                                                                     <td><?= $value->szCustomerId; ?> - <?= $value->custName; ?></td>
+                                                                    <td><input class="form-check-input" type="checkbox" value="" id="checkList" <?= ($value->bOutOfRoute == '1') ? "checked" : ""; ?> disabled ></td>
                                                                 </tr>
                                                             <?php
                                                                 $no++;

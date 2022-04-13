@@ -115,10 +115,11 @@
                                             <td><?= $value->refOld; ?></td>
                                             <td><?= date('Y-m-d', strtotime($value->dtmDoc)); ?></td>
                                             <td>
-                                                <input type="hidden" name="b" id="b<?= $no; ?>" value="<?= $value->szDocId; ?>">
-                                                <button type="button" class="btn btn-adjust" onclick="adjustment(document.getElementById('<?= $no; ?>').value)">
-                                                    Ajust
-                                                </button>
+                                                <a href="<?php echo base_url('inventDepot/editBtb/' . $value->szDocId); ?>">
+                                                    <button type="button" class="btn btn-adjust">
+                                                        Adjust
+                                                    </button>
+                                                </a>
                                                 <a href="<?php echo base_url('inventCetak/btbDepot/' . $value->szDocId); ?>" target="_blank">
                                                     <button type="button" class="btn icon btn-success">
                                                         Print
@@ -269,124 +270,6 @@
         </div>
     </div>
 
-    <!-- adjustment-->
-    <div class="modal fade text-left w-100" id="full-scrn-1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel20" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-full" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel20">Adjustment BTB Depot</h4>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <i data-feather="x"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-3 col-12">
-                            <div class="form-group">
-                                <label for="first-name-column">No. BTB Lama</label>
-                                <input type="text" id="idBtbOld" class="form-control" name="btbOld" readonly>
-                                <input type="text" id="idBkbOld" class="form-control" name="bkbOld" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-12">
-                            <div class="form-group">
-                                <label for="last-name-column">No. BTB Pembatal</label>
-                                <input type="text" id="idBtbCancel" class="form-control" name="btbCancel" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-12">
-                            <div class="form-group">
-                                <label for="last-name-column">No. Adjustment</label>
-                                <input type="text" id="idAdjustment" class="form-control" name="adjNo" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-12">
-                            <div class="form-group">
-                                <label for="last-name-column">Tanggal</label>
-                                <input type="text" id="idAdjTgl" class="form-control" name="adjTgl" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 col-12">
-                            <div class="form-group">
-                                <label for="last-name-column">Gudang</label>
-                                <input type="text" id="idGdgAdj" class="form-control" name="adjGdg" readonly>
-                                <input type="text" id="idAdjGdg" class="form-control" name="adjGudang" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-12">
-                            <div class="form-group">
-                                <label for="company-column">Tipe Stok</label>
-                                <input type="text" id="idTipe" class="form-control" name="adjTipe" readonly>
-                                <input type="text" id="idStok" class="form-control" name="adjStok" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 col-12">
-                            <div class="form-group">
-                                <label for="email-id-column">Tipe Stok</label>
-                                <input type="text" id="idStok" class="form-control" name="tipeStok" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-12">
-                            <div class="form-group">
-                                <label for="city-column">Pengemudi</label>
-                                <div class="row">
-                                    <div class="col-4" style="padding-right: 0">
-                                        <input type="text" id="idPengemudi" class="form-control" name="pengemudi" readonly>
-                                    </div>
-                                    <div class="col-8" style="padding-left: 0;">
-                                        <input type="text" id="namaPengemudi" class="form-control" name="namaPengemudi" readonly>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-12">
-                            <div class="form-group">
-                                <label for="city-column">Kendaraan</label>
-                                <div class="row">
-                                    <div class="col-4" style="padding-right: 0">
-                                        <input type="text" id="idKendaraan" class="form-control" name="kendaraan" readonly>
-                                    </div>
-                                    <div class="col-8" style="padding-left: 0;">
-                                        <input type="text" id="namaKendaraan" class="form-control" name="namaKendaraan" readonly>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12 col-12">
-                            <div class="form-group">
-                                <label for="city-column">Keterangan</label>
-                                <textarea name="keterangan" class="form-control" id="idKeterangan" cols="20" rows="3" readonly></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <table class='table table-striped' id="table1">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Kode Produk</th>
-                                <th>Produk</th>
-                                <th>Qty</th>
-                                <th>Satuan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table_body">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal">
-                        <i class="bx bx-x d-block d-sm-none"></i>
-                        <span class="d-none d-sm-block">Close</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script type="text/javascript" src="<?php echo base_url(); ?>assets/jquery-3.3.1.js ?>"></script>
     <script>
         function detail(x) {
@@ -443,62 +326,6 @@
             //     data();
             // }, 5000);
             $('#full-scrn').modal('show');
-        }
-
-        function adjustment(x) {
-            var id = x;
-            alert(id);
-            function data() {
-                $.ajax({
-                    url: "<?= base_url('inventDepot/detailBtb') ?>",
-                    method: "POST",
-                    data: {
-                        'id': id
-                    },
-                    dataType: "JSON",
-                    success: function(data) {
-                        console.log(data);
-                        for (var row of data) {
-                            document.getElementById("idBtb").value = row.szDocId;
-                            document.getElementById("idBkb").value = row.refOld;
-                            document.getElementById("idTanggal").value = row.dtmDoc;
-                            document.getElementById("idGudang").value = row.szWarehouseId + " - " + row.gudang;
-                            document.getElementById("idStok").value = row.szStockType + " - " + row.stok;
-                            document.getElementById("idKendaraan").value = row.szVehicleId;
-                            document.getElementById("namaKendaraan").value = row.kendaraan;
-                            document.getElementById("idPengemudi").value = row.szEmployeeId;
-                            document.getElementById("namaPengemudi").value = row.pengemudi;
-                            document.getElementById("idKeterangan").value = row.szDescription;
-                            document.getElementById("idAsal").value = row.szPartyId;
-                            if (row.depo != '') {
-                                document.getElementById("namaAsal").value = row.depo;
-                            } else {
-                                document.getElementById("namaAsal").value = row.so;
-                            }
-
-                        }
-
-                        var number = 1;
-                        var html = '';
-                        for (i = 0; i < data.length; i++) {
-                            html += '<tr>' +
-                                '<td>' + number + '</td>' +
-                                '<td>' + data[i].szProductId + '</td>' +
-                                '<td>' + data[i].product + '</td>' +
-                                '<td>' + data[i].decQty + '</td>' +
-                                '<td>' + data[i].szUomId + '</td>' +
-                                '<tr>';
-                            number++;
-                        }
-                        $('#table_body').html(html);
-                    },
-                });
-            }
-            data();
-            // setInterval(function() {
-            //     data();
-            // }, 5000);
-            $('#full-scrn-1').modal('show');
         }
     </script>
 

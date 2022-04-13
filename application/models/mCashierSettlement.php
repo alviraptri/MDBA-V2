@@ -1,72 +1,318 @@
 <?php
 class mCashierSettlement extends CI_Model
 {
-    function getData($branch, $dateStart, $dateFinish)
+    //action
+    function updateData($where, $data, $tabel)
     {
-        if ($branch == '321' || $branch == '336' || $branch == '324') {
+        $this->db->trans_start(); # Starting Transaction
+        $this->db->trans_strict(FALSE); # See Note 01. If you wish can remove as well
+
+        $this->db->where($where);
+        $this->db->update($tabel, $data);
+
+        $this->db->trans_complete(); # Completing transaction
+
+        if ($this->db->trans_status() === FALSE) {
+            # Something went wrong.
+            $this->db->trans_rollback();
+            return FALSE;
+        } else {
+            # Everything is Perfect. 
+            # Committing data to the database.
+            $this->db->trans_commit();
+            return TRUE;
+        }
+    }
+
+    function updateDms($where, $data, $tabel)
+    {
+        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
             $dept = 'asa';
         } else {
             $dept = 'tvip';
         }
 
-        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
+        $this->db2 = $this->load->database($dept, true);
+
+        $this->db2->trans_start(); # Starting Transaction
+        $this->db2->trans_strict(FALSE); # See Note 01. If you wish can remove as well
+
+        $this->db2->where($where);
+        $this->db2->update($tabel, $data);
+
+        $this->db2->trans_complete(); # Completing transaction
+
+        if ($this->db2->trans_status() === FALSE) {
+            # Something went wrong.
+            $this->db2->trans_rollback();
+            return FALSE;
+        } else {
+            # Everything is Perfect. 
+            # Committing data to the database.
+            $this->db2->trans_commit();
+            return TRUE;
         }
-        else{
-            $base = 'mdbatvip';
+        $this->db2->close();
+    }
+
+    function simpanData($data, $tabel)
+    {
+        $this->db->trans_start(); # Starting Transaction
+        $this->db->trans_strict(FALSE); # See Note 01. If you wish can remove as well 
+
+        $this->db->insert($tabel, $data);
+
+        $this->db->trans_complete(); # Completing transaction
+
+        if ($this->db->trans_status() === FALSE) {
+            # Something went wrong.
+            $this->db->trans_rollback();
+            return FALSE;
+        } else {
+            # Everything is Perfect. 
+            # Committing data to the database.
+            $this->db->trans_commit();
+            return TRUE;
+        }
+    }
+
+    function simpanDms($data, $tabel)
+    {
+        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
+            $dept = 'asa';
+        } else {
+            $dept = 'tvip';
         }
 
-        $this->db2 = $this->load->database($base, true);
-        $query = $this->db2->query("SELECT dms_cas_cashtempbalance.szAccountId AS akun,
-        dms_fin_account.`szName` AS namaAkun,
-        dms_cas_cashtempbalance.szSubAccountId AS subAkun,
-        dms_fin_subaccount.`szName` AS namaSubAkun,
-            IFNULL (dms_cas_cashbalance.`decAmount`,0) AS saldoAwal,
-            IFNULL (SUM(dms_cas_cashtempbalance.decDebit),0) AS decDebit,
-            SUM(dms_cas_cashtempbalance.decCredit) AS decCredit,
-            IFNULL(dms_cas_cashbalance.`decAmount`,0) + SUM(dms_cas_cashtempbalance.decDebit) - SUM(dms_cas_cashtempbalance.decCredit) AS saldoAkhir
-            FROM dms_cas_cashtempbalance 
-            LEFT JOIN dms_cas_cashbalance ON dms_cas_cashbalance.`szAccountId` = dms_cas_cashtempbalance.`szAccountId`
-            AND dms_cas_cashbalance.`szSubAccountId` = dms_cas_cashtempbalance.`szSubAccountId`
-            LEFT JOIN `dms_fin_account` ON `dms_fin_account`.`szId` = dms_cas_cashtempbalance.szAccountId
-            LEFT JOIN `dms_fin_subaccount` ON dms_fin_subaccount.`szId` = dms_cas_cashtempbalance.szSubAccountId
-        WHERE dms_cas_cashtempbalance.dtmDoc  BETWEEN '$dateStart' AND '$dateFinish'
-        AND dms_cas_cashtempbalance.bVoucher = '0'
-        AND dms_cas_cashtempbalance.szBranchId = '$branch'
-        GROUP BY dms_cas_cashtempbalance.szAccountId, dms_cas_cashtempbalance.szSubAccountId");
-        return $query->result();
+        $this->db2 = $this->load->database($dept, true);
+        $this->db2->trans_start(); # Starting Transaction
+        $this->db2->trans_strict(FALSE); # See Note 01. If you wish can remove as well 
+
+        $this->db2->insert($tabel, $data);
+
+        $this->db2->trans_complete(); # Completing transaction
+
+        if ($this->db2->trans_status() === FALSE) {
+            # Something went wrong.
+            $this->db2->trans_rollback();
+            return FALSE;
+        } else {
+            # Everything is Perfect. 
+            # Committing data to the database.
+            $this->db2->trans_commit();
+            return TRUE;
+        }
         $this->db2->close();
+    }
+    //end action
+
+    //counter
+    function getId($id)
+    {
+        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
+            $base = 'dummymdbaasa';
+            $dept = 'asa';
+        }
+        else{
+            $base = 'dummymdbatvip';
+            $dept = 'tvip';
+        }
+
+        $this->db2 = $this->load->database($dept, true);
+        $query = $this->db->query("SELECT intLastCounter FROM $base.dms_sm_counter WHERE szId = '$id'");
+        foreach ($query->result() as $a) {
+            $tmp = ($a->intLastCounter + 1);
+            $auto_num = sprintf("%07s", $tmp);
+        }
+        return $this->session->userdata('user_branch') . "-" . $auto_num;
+        $this->db2->close();
+    }
+
+    function getCounter($countId)
+    {
+        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
+            $base = 'dummymdbaasa';
+            $dept = 'asa';
+        }
+        else{
+            $base = 'dummymdbatvip';
+            $dept = 'tvip';
+        }
+
+        $this->db2 = $this->load->database($dept, true);
+        $query = $this->db->query("SELECT intLastCounter FROM $base.dms_sm_counter WHERE szId = '$countId'");
+        foreach ($query->result() as $value) {
+            $id = $value->intLastCounter;
+        }
+        return $id;
+        $this->db2->close();
+    }
+    //end counter
+
+    //transaksi
+    function getVbHeader($tglStart, $tglFinish, $depo)
+    {
+        if ($depo == '321' || $depo == '336' || $depo == '324') {
+            $base = 'dummymdbaasa';
+        } else {
+            $base = 'dummymdbatvip';
+        }
+
+        $query = $this->db->query("SELECT a.*, SUM(a.`decAmountControl`) AS total
+        FROM  $base.`dms_cas_doccashtempout` a
+        INNER JOIN $base.dms_cas_cashtempbalance b ON a.`szDocId` = b.`szDocId` 
+        WHERE b.`bVoucher` = '0' AND b.szObjectId = 'DMSDocCashTempOut' AND a.`szBranchId` = '$depo' 
+        AND a.dtmDoc BETWEEN '$tglStart' AND '$tglFinish'
+        GROUP BY a.`szAccountId`");
+        if ($query->num_rows() > 0) {
+            $res = $query->result();
+            return $res;
+        }
+        return [];
+    }
+
+    function getVtHeader($tglStart, $tglFinish, $depo)
+    {
+        if ($depo == '321' || $depo == '336' || $depo == '324') {
+            $base = 'dummymdbaasa';
+        } else {
+            $base = 'dummymdbatvip';
+        }
+
+        $query = $this->db->query("SELECT a.*, SUM(a.`decAmountControl`) AS total
+        FROM  $base.`dms_cas_doccashtempin` a
+        INNER JOIN $base.dms_cas_cashtempbalance b ON a.`szDocId` = b.`szDocId` 
+        WHERE b.`bVoucher` = '0' AND b.szObjectId = 'DMSDocCashTempIn' AND a.`szBranchId` = '$depo' 
+        AND a.dtmDoc BETWEEN '$tglStart' AND '$tglFinish'
+        GROUP BY a.`szAccountId`");
+        if ($query->num_rows() > 0) {
+            $res = $query->result();
+            return $res;
+        }
+        return [];
+    }
+
+    function getSaldo($depo, $szAccountId, $szSubAccountId)
+    {
+        if ($depo == '321' || $depo == '336' || $depo == '324') {
+            $base = 'dummymdbaasa';
+        } else {
+            $base = 'dummymdbatvip';
+        }
+
+        $query = $this->db->query("SELECT * FROM dummymdbatvip.`dms_cas_cashbalancesaldo` a
+        WHERE a.`szAccountId` = '$szAccountId' AND a.`szSubAccountId` = '$szSubAccountId' AND a.`szBranchId` = '$depo'");
+        if ($query->num_rows() > 0) {
+            $res = $query->result();
+            return $res;
+        }
+        return [];
+    }
+
+    function getVbDetail($depo, $szAccountId, $szSubAccountId, $tglStart, $tglFinish)
+    {
+        if ($depo == '321' || $depo == '336' || $depo == '324') {
+            $base = 'dummymdbaasa';
+        } else {
+            $base = 'dummymdbatvip';
+        }
+
+        $query = $this->db->query("SELECT a.szAccountId as headAccount, c.*, SUM(c.`decAmount`) AS jumlahDetail
+        FROM  $base.`dms_cas_doccashtempout` a
+        INNER JOIN $base.dms_cas_cashtempbalance b
+        ON a.`szDocId` = b.`szDocId` 
+        INNER JOIN $base.dms_cas_doccashtempoutitem c
+        ON c.`szDocId` = a.`szDocId`
+        WHERE b.bVoucher = '0' 
+        AND b.szObjectId = 'DMSDocCashTempOut' 
+        AND a.`szAccountId` = '$szAccountId'
+        AND a.`szSubAccountId` = '$szSubAccountId'
+        AND a.`szBranchId` = '$depo'
+        AND a.dtmDoc BETWEEN '$tglStart' AND '$tglFinish'
+        GROUP BY c.`szAccountId`, c.`szSubAccountId`");
+        if ($query->num_rows() > 0) {
+            $res = $query->result();
+            return $res;
+        }
+        return [];
+    }
+
+    function getVtDetail($depo, $szAccountId, $szSubAccountId, $tglStart, $tglFinish)
+    {
+        if ($depo == '321' || $depo == '336' || $depo == '324') {
+            $base = 'dummymdbaasa';
+        } else {
+            $base = 'dummymdbatvip';
+        }
+
+        $query = $this->db->query("SELECT a.szAccountId as headAccount, c.*, SUM(c.`decAmount`) AS jumlahDetail
+        FROM  $base.`dms_cas_doccashtempin` a
+        INNER JOIN $base.dms_cas_cashtempbalance b
+        ON a.`szDocId` = b.`szDocId` 
+        INNER JOIN $base.dms_cas_doccashtempinitem c
+        ON c.`szDocId` = a.`szDocId`
+        WHERE b.bVoucher = '0' 
+        AND b.szObjectId = 'DMSDocCashTempIn' 
+        AND a.`szAccountId` = '$szAccountId'
+        AND a.`szSubAccountId` = '$szSubAccountId'
+        AND a.`szBranchId` = '$depo'
+        AND a.dtmDoc BETWEEN '$tglStart' AND '$tglFinish'
+        GROUP BY c.`szAccountId`, c.`szSubAccountId`");
+        if ($query->num_rows() > 0) {
+            $res = $query->result();
+            return $res;
+        }
+        return [];
+    }
+    //end transaksi
+
+    function getData($branch, $dateStart, $dateFinish)
+    {
+        if ($branch == '321' || $branch == '336' || $branch == '324') {
+            $base = 'dummymdbaasa';
+        } else {
+            $base = 'dummymdbatvip';
+        }
+        $query = $this->db->query("SELECT a.szAccountId AS akun,
+        c.`szName` AS namaAkun,
+        a.szSubAccountId AS subAkun,
+        d.`szName` AS namaSubAkun,
+            IFNULL (b.`decAmount`,0) AS saldoAwal,
+            IFNULL (SUM(a.decDebit),0) AS decDebit,
+            SUM(a.decCredit) AS decCredit,
+            IFNULL(b.`decAmount`,0) + SUM(a.decDebit) - SUM(a.decCredit) AS saldoAkhir
+            FROM $base.dms_cas_cashtempbalance a
+            LEFT JOIN $base.dms_cas_cashbalance b ON b.`szAccountId` = a.`szAccountId`
+            AND b.`szSubAccountId` = a.`szSubAccountId`
+            LEFT JOIN $base.`dms_fin_account` c ON c.`szId` = a.szAccountId
+            LEFT JOIN $base.`dms_fin_subaccount` d ON d.`szId` = a.szSubAccountId
+        WHERE a.dtmDoc  BETWEEN '$dateStart' AND '$dateFinish'
+        AND a.bVoucher = '0'
+        AND a.szBranchId = '$branch'
+        GROUP BY a.szAccountId, a.szSubAccountId");
+        return $query->result();
     }
 
     function getArrayHeader($tglStart, $tglFinish, $depo)
     {
         if ($depo == '321' || $depo == '336' || $depo == '324') {
-            $dept = 'asa';
+            $base = 'dummymdbaasa';
         } else {
-            $dept = 'tvip';
+            $base = 'dummymdbatvip';
         }
 
-        if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
-        }
-        else{
-            $base = 'mdbatvip';
-        }
-
-        $this->db2 = $this->load->database($dept, true);
         $query = $this->db->query("SELECT 
-        $base.dms_cas_doccashtempout.* , SUM(decAmountControl) as totalDec
-        FROM  `$base.dms_cas_doccashtempout` 
-        INNER JOIN $base.dms_cas_cashtempbalance
-        ON $base.dms_cas_doccashtempout.`szDocId` = $base.dms_cas_cashtempbalance.`szDocId` 
-        INNER JOIN $base.dms_cas_doccashtempoutitem
-        ON $base.dms_cas_doccashtempoutitem.`szDocId` = $base.dms_cas_doccashtempout.`szDocId`
+        a.* , SUM(decAmountControl) AS totalDec
+        FROM  $base.`dms_cas_doccashtempout` a
+        INNER JOIN $base.dms_cas_cashtempbalance b
+        ON a.`szDocId` = b.`szDocId` 
+        INNER JOIN $base.dms_cas_doccashtempoutitem c
+        ON c.`szDocId` = a.`szDocId`
         WHERE bVoucher = '0' AND szObjectId = 'DMSDocCashTempOut'
-        AND $base.dms_cas_doccashtempout.`szBranchId` = '$depo'
-        AND $base.dms_cas_doccashtempout.dtmDoc BETWEEN '$tglStart' AND '$tglFinish'
-        GROUP BY $base.dms_cas_doccashtempout.`szAccountId`");
+        AND a.`szBranchId` = '320'
+        AND a.dtmDoc BETWEEN '2022-04-04' AND '2022-04-04'
+        GROUP BY a.`szAccountId`");
         return $query->result();
-        $this->db2->close();
     }
 
     function getDocId($szAccountId, $tglStart, $tglFinish, $depo)
@@ -85,20 +331,21 @@ class mCashierSettlement extends CI_Model
         }
 
         $this->db2 = $this->load->database($dept, true);
-        $query = $this->db->query("SELECT $base.dms_cas_doccashtempout.`szDocId`
-        FROM  `$base.dms_cas_doccashtempout` 
-        INNER JOIN $base.dms_cas_cashtempbalance
-        ON $base.dms_cas_doccashtempout.`szDocId` = $base.dms_cas_cashtempbalance.`szDocId` 
-        INNER JOIN $base.dms_cas_doccashtempoutitem
-        ON $base.dms_cas_doccashtempoutitem.`szDocId` = $base.dms_cas_doccashtempout.`szDocId`
-        WHERE $base.dms_cas_cashtempbalance.bVoucher = '0' 
-        AND $base.dms_cas_cashtempbalance.szObjectId = 'DMSDocCashTempOut' 
-        AND $base.dms_cas_doccashtempout.`szAccountId` = '$szAccountId'
-        AND $base.dms_cas_doccashtempout.`szBranchId` = '$depo'
-        AND $base.dms_cas_doccashtempout.dtmDoc BETWEEN '$tglStart' AND '$tglFinish'
-        GROUP BY $base.dms_cas_doccashtempout.`szDocId`");
+        $query = $this->db->query("SELECT a.`szDocId`
+        FROM  $base.`dms_cas_doccashtempout` a
+        INNER JOIN $base.dms_cas_cashtempbalance b
+        ON a.`szDocId` = b.`szDocId` 
+        INNER JOIN $base.dms_cas_doccashtempoutitem c
+        ON c.`szDocId` = a.`szDocId`
+        WHERE b.bVoucher = '0' 
+        AND b.szObjectId = 'DMSDocCashTempOut' 
+        AND a.`szAccountId` = '$szAccountId'
+        AND a.`szBranchId` = '$depo'
+        AND a.dtmDoc BETWEEN '$tglStart' AND '$tglFinish'
+        GROUP BY a.`szDocId`");
+        $data = [];
         foreach ($query->result() as $row) {
-            $data[] = $row->szDocId;
+            $data = $row->szDocId;
         }
         $a = "'" . implode("','", $data) . "'";
         return $a;

@@ -120,7 +120,7 @@ class mSndRute extends CI_Model
         AND CASE WHEN DAYNAME(CURDATE()) = 'Monday' THEN b.`intDay1` = '1' 
                 WHEN DAYNAME(CURDATE()) = 'Tuesday' THEN b.`intDay2` = '1'
                 WHEN DAYNAME(CURDATE()) = 'Wednesday' THEN b.`intDay3` = '1'  
-                WHEN DAYNAME(CURDATE()) = 'Thrusday' THEN b.`intDay4` = '1'
+                WHEN DAYNAME(CURDATE()) = 'Thursday' THEN b.`intDay4` = '1'
                 WHEN DAYNAME(CURDATE()) = 'Friday' THEN b.`intDay5` = '1'
                 WHEN DAYNAME(CURDATE()) = 'Saturday' THEN b.`intDay6` = '1'
                 WHEN DAYNAME(CURDATE()) = 'Sunday' THEN b.`intDay7` = '1'

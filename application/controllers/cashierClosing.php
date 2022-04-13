@@ -1,7 +1,7 @@
 <?php
 class cashierClosing extends CI_Controller
 {
-    function __construct()
+	function __construct()
 	{
 		parent::__construct();
 		if ($this->session->userdata('user_logged') == '') {
@@ -12,52 +12,50 @@ class cashierClosing extends CI_Controller
 		date_default_timezone_set('Asia/Jakarta');
 	}
 
-    function simpan()
-    {
-		if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
-        }
-        else{
-            $base = 'mdbatvip';
-        }
-        $user = $this->session->userdata('user_nik');
-        $depo = $this->session->userdata('user_branch');
-        if ($depo == '321' || $depo == '324' || $depo == '336') {
-            $dept = 'ASA';
-        }
-        else{
-            $dept = 'TVIP';
-        }
+	function simpan()
+	{
+		$user = $this->session->userdata('user_nik');
+		$depo = $this->session->userdata('user_branch');
+		if ($depo == '321' || $depo == '324' || $depo == '336') {
+			$dept = 'ASA';
+			$base = 'dummymdbaasa';
+		} else {
+			$dept = 'TVIP';
+			$base = 'dummymdbatvip';
+		}
 
-        $tanggal = $this->input->post('tgl');
+		$tanggal = $this->input->post('tgl');
 		$tanggaltotime = strtotime($tanggal);
 		$date = date('Y-m-d H:i:s');
-		$getClosing = $this->mCashierClosing->getLastClosing();
-		$getLastClosing = date("Y-m-d",strtotime($getClosing));
-		$tanggalNol = date('Y-m-d 00:00:00',$tanggaltotime);
+		$getClosing = $this->mCashierClosing->getLastClosing($depo);
+		$getLastClosing = date("Y-m-d", strtotime($getClosing));
+		$tanggalNol = date('Y-m-d 00:00:00', $tanggaltotime);
 
-        if($tanggal <= $getLastClosing){
+		if ($tanggal <= $getLastClosing) {
 			$this->session->set_flashdata('error', 'Data Gagal Tersimpan');
-                header('Location: ' . base_url('home'));
-                exit;
+			header('Location: ' . base_url('home'));
+			exit;
 		}
-		if($tanggal >= $getLastClosing){
-			$getNomorClosingOri = $this->mCashierClosing->getNomorClosingOri();
-			$getNomorClosing = $this->mCashierClosing->getNomorClosing();
+		if ($tanggal >= $getLastClosing) {
+			// COUNTER
+			$closingId = 'CLOSING' . $depo . 'COU';
+			$closing = $this->mCashierSettlement->getId($closingId);
+
+			// $getNomorClosingOri = $this->mCashierClosing->getNomorClosingOri();
+			// $getNomorClosing = $this->mCashierClosing->getNomorClosing();
 
 			$dms_sd_docsettlement = [];
 
-			$dataCashOut = $this->mCashierClosing->getDataCashOutForClosing($tanggalNol);
+			$dataCashOut = $this->mCashierClosing->getDataCashOutForClosing($tanggalNol, $depo);
 			//$dataCashOutItem = $this->mCashierClosing->getDataCashOutItemForClosing();
-			$dataCashIn = $this->mCashierClosing->getDataCashInForClosing($tanggalNol);
+			$dataCashIn = $this->mCashierClosing->getDataCashInForClosing($tanggalNol, $depo);
 			$voucherOut = [];
 			$voucherIn = [];
 			//$dataCashInItem = $this->mCashierClosing->getDataCashInItemForClosing();
 
-			if (($dataCashOut != null) || ($dataCashIn != null)) 
-			{
-				if($dataCashOut != NULL){
-					foreach($dataCashOut as $data){
+			if (($dataCashOut != null) || ($dataCashIn != null)) {
+				if ($dataCashOut != NULL) {
+					foreach ($dataCashOut as $data) {
 						$Voucher_Code    = 	$data->Voucher_Code;
 						$Id_VB 			 = 	$data->Id_VB;
 						$ID_Depo 		 = 	$data->ID_Depo;
@@ -81,19 +79,19 @@ class cashierClosing extends CI_Controller
 							'KEBUTUHAN' 	=> $KEBUTUHAN,
 							'TOTAL' 		=> $TOTAL,
 							'ID_VB_Item' 	=> $ID_VB_Item,
-							'Tipe_Transaksi'=> $Tipe_Transaksi,
+							'Tipe_Transaksi' => $Tipe_Transaksi,
 							'Nilai' 		=> $Nilai,
 							'Notes' 		=> $Notes,
 							'status'		=> '0',
 							'update_at'		=> $date
 						);
-						$this->db5 = $this->load->database('gl',TRUE);
-						$this->db5->insert("voucher_bayar",$voucherOut);
+						$this->db5 = $this->load->database('gl', TRUE);
+						$this->db5->insert("voucher_bayar", $voucherOut);
 					}
 				}
 
-				if($dataCashIn != NULL){
-					foreach($dataCashIn as $data){
+				if ($dataCashIn != NULL) {
+					foreach ($dataCashIn as $data) {
 						$Voucher_Code    = 	$data->Voucher_Code;
 						$Id_VT 			 = 	$data->Id_VT;
 						$ID_Depo 		 = 	$data->ID_Depo;
@@ -117,34 +115,34 @@ class cashierClosing extends CI_Controller
 							'KEBUTUHAN' 	=> $KEBUTUHAN,
 							'TOTAL_VT' 		=> $TOTAL_VT,
 							'ID_VT_Item' 	=> $ID_VT_Item,
-							'Tipe_Transaksi'=> $Tipe_Transaksi,
+							'Tipe_Transaksi' => $Tipe_Transaksi,
 							'Nilai_VT' 		=> $Nilai_VT,
 							'Notes' 		=> $Notes,
 							'status'		=> '0',
 							'update_at'		=> $date
 						);
-						$this->db5 = $this->load->database('gl',TRUE);
-						$this->db5->insert("voucher_Terima",$voucherIn);
+						$this->db5 = $this->load->database('gl', TRUE);
+						$this->db5->insert("voucher_Terima", $voucherIn);
 					}
 				}
-				$this->db->query("UPDATE $base.dms_sm_counter SET intLastCounter = '$getNomorClosingOri',
-				szUserUpdatedId = '$user',
-				dtmLastUpdated = '$tanggal'
-				WHERE szId = 'CLOSING".$depo."COU' ");
-	
-				$this->db->query("UPDATE $base.dms_gen_closing SET dtmLastClosing = '$tanggal 00:00:00',
-				szUserUpdatedId = '$user',
-				dtmLastUpdated = '$date'
-				WHERE szBranchId = '$depo'
-				AND szClosingType = 'CAS' ");
-			
+				// update counter
+				$closingCounter = $this->mCashierSettlement->getCounter($closingId);
+				$updateCountVt = array(
+					'intLastCounter' => $closingCounter + 1,
+					'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+					'dtmLastUpdated' => date('Y-m-d H:i:s')
+				);
+				$whereCountVb = array('szId' => $closingId);
+				// $this->mCashierSettlement->updateData($whereCountVb, $updateCountVb, $base . '.dms_sm_counter');
+				// $this->mCashierSettlement->updateDms($whereCountVb, $updateCountVb, 'dmstesting.dms_sm_counter');
+
 
 				$dms_sd_docsettlement = array(
 					'iId' => $this->uuid->v4(),
-					'szDocId'=> $getNomorClosing,
+					'szDocId' => $closing,
 					'dtmDoc' => $tanggalNol,
-					'dtmFrom'=>$tanggal,
-					'dtmTo'=>$tanggal,	
+					'dtmFrom' => $tanggal,
+					'dtmTo' => $tanggal,
 					'szSettBranchId' => $depo,
 					'bCashClosing' =>  '1',
 					'bDistributionClosing' => '1',
@@ -160,12 +158,11 @@ class cashierClosing extends CI_Controller
 					'dtmLastUpdated' => $date,
 				);
 				$this->db->insert("$base.dms_sd_docsettlement", $dms_sd_docsettlement);
-			}
-			else{
+			} else {
 				echo 'data voucher tidak ada pada tanggal tersebut';
 			}
 			$this->session->set_flashdata('success', "BERHASIL CLOSING");
 			redirect("home");
 		}
-    }
+	}
 }

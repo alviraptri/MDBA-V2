@@ -334,4 +334,14 @@ class home extends CI_Controller
         $data['data'] = $this->mHome->prosesSuratTugas();
         $this->load->view('vSndProsesST', $data);
     }
+    
+    function konversiPpnDo()
+    {
+        $this->load->view('vKonversiPpnDo');
+    }
+
+    function konversiInvoice()
+    {
+        $this->load->view('vKonversiInvoice');
+    }
 }

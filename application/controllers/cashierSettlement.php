@@ -23,408 +23,645 @@ class cashierSettlement extends CI_Controller
 
 	function simpan()
 	{
-		
+
 		$tglStart = $this->input->post('tglStart');
 		$tglFinish = $this->input->post('tglFinish');
 		$depo = $this->input->post('depo');
-		$user = $this->session->userdata('user_nik');
-		$tanggal = date('Y-m-d H:i:s');
 
 		if ($depo == '321' || $depo == '324' || $depo == '336') {
 			$dept = 'ASA';
-			$namedept = 'asa';
 		} else {
 			$dept = 'TVIP';
-			$namedept = 'tvip';
 		}
 
-		$this->simpanVb($tglStart, $tglFinish, $depo, $user, $tanggal, $dept);
-		$this->simpanVt($tglStart, $tglFinish, $depo, $user, $tanggal, $dept);
+		$this->simpanVb($tglStart, $tglFinish, $depo, $dept);
+		$this->simpanVt($tglStart, $tglFinish, $depo, $dept);
 
-		$this->session->set_flashdata('success', 'Data Sudah Tersimpan');
-		header('Location: ' . base_url('home'));
-		exit;
+		// $this->session->set_flashdata('success', 'Data Sudah Tersimpan');
+		// header('Location: ' . base_url('home'));
+		// exit;
 	}
 
-	function simpanVb($tglStart, $tglFinish, $depo, $user, $tanggal, $dept)
+	function simpanVb($tglStart, $tglFinish, $depo, $dept)
 	{
 		if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
-        }
-        else{
-            $base = 'mdbatvip';
-        }
-		$dms_doccashout = [];
-		$dms_doccashoutitem = [];
-		$dms_cashbalanceheader = [];
-		$dms_cashbalancedetail = [];
-		$dms_cashbalanceSaldo = [];
-		$noVoucherBayar = [];
+			$base = 'mdbaasa';
+		} else {
+			$base = 'mdbatvip';
+		}
 
-		$getArray = $this->mCashierSettlement->getArrayHeader($tglStart, $tglFinish, $depo);
-		foreach ($getArray as $v) {
-			$szAccountId = $v->szAccountId;
-			$szSubAccountId = $v->szSubAccountId;
-			$getDocId = $this->mCashierSettlement->getDocId($szAccountId, $tglStart, $tglFinish, $depo);
-			$getNomorVB = $this->mCashierSettlement->getNomorVB();
-			$decAmount = $v->totalDec;
+		// NO ADJUSTMENT
+		$vbId = 'VB' . $depo . 'COU';
+		$vb = $this->mCashierSettlement->getId($vbId);
 
-			$dms_doccashout = array(
+		$getVbHeader = $this->mCashierSettlement->getVbHeader($tglStart, $tglFinish, $depo);
+
+		$no = 0;
+		foreach ($getVbHeader as $key) {
+			$headerOut = array(
 				'iId' => $this->uuid->v4(),
-				'szDocId' => $getNomorVB,
-				'dtmDoc' => $tglFinish,
-				'szEmployeeId' => $user,
-				'szAccountId' => $szAccountId,
-				'szSubAccountId' => $szSubAccountId,
+				'szDocId' => $vb,
+				'dtmDoc' => date('Y-m-d'),
+				'szEmployeeId' => $this->session->userdata('user_nik'),
+				'szAccountId' => $key->szAccountId,
+				'szSubAccountId' => $key->szSubAccountId,
 				'decAmountControl' => '0',
 				'intPrintedCount' => '0',
 				'szBranchId' => $depo,
-				'szCompanyId' =>  $dept,
+				'szCompanyId' => $dept,
 				'szDocStatus' => 'Applied',
-				'szUserCreatedId' => $user,
-				'szUserUpdatedId' => $user,
-				'dtmCreated' => $tanggal,
-				'dtmLastUpdated' => $tanggal,
+				'szUserCreatedId' => $this->session->userdata('user_nik'),
+				'szUserUpdatedId' => $this->session->userdata('user_nik'),
+				'dtmCreated' => date('Y-m-d H:i:s'),
+				'dtmLastUpdated' => date('Y-m-d H:i:s'),
 			);
-			$this->mCashierBtu->simpanData($dms_doccashout, $base.'.dms_cas_doccashout');
+			// $this->mCashierSettlement->simpanData($headerOut, $base . '.dms_cas_doccashout');
+			// $this->mCashierSettlement->simpanDms($headerOut, 'dmstesting.dms_cas_doccashout');
+			// echo "<pre> VB HEADER : " . var_export($headerOut, true) . "</pre>";
 
-			$getAmountHeader = $this->mCashierSettlement->getAmountHeader($getDocId);
-			$dms_cashbalanceheader = array(
+			$headerBalance = array(
 				'iId' => $this->uuid->v4(),
 				'szObjectId' => 'DMSDocCashOut',
-				'szDocId' => $getNomorVB,
-				'dtmDoc' => $tglFinish,
-				'szAccountId' => $szAccountId,
-				'szSubAccountId' => $szSubAccountId,
-				'decDebit' => '0',
-				'decCredit' => $getAmountHeader,
-				'decAmount' => 0 - floatval($getAmountHeader),
+				'szDocId' => $vb,
+				'dtmDoc' => date('Y-m-d'),
+				'szAccountId' => $key->szAccountId,
+				'szSubAccountId' => $key->szSubAccountId,
+				'decDebit' => '0.0000',
+				'decCredit' => $key->total,
+				'decAmount' => 0 - $key->total,
 				'bVoucher' => '1',
 				'szVoucherNo' => '',
 				'szBranchId' => $depo,
 				'szDescription' => '',
 				'intItemNumber' => '-1',
-				'szUserCreatedId' => $user,
-				'szUserUpdatedId' => $user,
-				'dtmCreated' => $tanggal,
-				'dtmLastUpdated' => $tanggal,
+				'szUserCreatedId' => $this->session->userdata('user_nik'),
+				'szUserUpdatedId' => $this->session->userdata('user_nik'),
+				'dtmCreated' => date('Y-m-d H:i:s'),
+				'dtmLastUpdated' => date('Y-m-d H:i:s'),
 			);
-			$this->mCashierBtu->simpanData($dms_cashbalanceheader, $base.'.dms_cas_cashbalance');
+			// $this->mCashierSettlement->simpanData($headerBalance, $base . '.dms_cas_cashbalance');
+			// $this->mCashierSettlement->simpanDms($headerBalance, 'dmstesting.dms_cas_cashbalance');
 
-			$getCashBalanceSaldoHeader = $this->db->query("SELECT * FROM $base.`dms_cas_cashbalancesaldo`
-			WHERE szBranchId = '$depo' 
-			AND szAccountId = '$szAccountId' AND szSubAccountId = '$szSubAccountId'");
-			if ($getCashBalanceSaldoHeader->num_rows() > 0) {
-				$getTempBalanceForSaldo = $this->mCashierSettlement->getTempBalanceForSaldo($szAccountId, $szSubAccountId, $depo);
-				foreach ($getTempBalanceForSaldo as $data) {
-					$credit = floatval($data->decCredit) + floatval($getAmountHeader);
-					$amount = floatval($data->decDebit) - $credit;
+			$headTempBalance = array(
+				'bVoucher' => '1',
+				'szVoucherNo' => $vb
+			);
+			$whereHeadTempBalance = array(
+				'szDocId' => $key->szDocId,
+				'szObjectId' => 'DMSDocCashTempOut'
+			);
+			// $this->mCashierSettlement->updateData($whereHeadTempBalance, $headTempBalance, $base . '.dms_cas_cashtempbalance');
+			// $this->mCashierSettlement->updateDms($whereHeadTempBalance, $headTempBalance, 'dmstesting.dms_cas_cashtempbalance');
 
-					$this->db->query("UPDATE $base.dms_cas_cashbalancesaldo 
-					SET decCredit = '$credit',
-					decAmount = '$amount',
-					szUserUpdatedId = '$user',
-					dtmLastUpdated = '$tanggal'
-					WHERE szAccountId = '$szAccountId' AND szSubAccountId = '$szSubAccountId'
-					AND szBranchId = '$depo'");
+			$getVbDetail = $this->mCashierSettlement->getVbDetail($depo, $key->szAccountId, $key->szSubAccountId, $tglStart, $tglFinish);
+			$num = 0;
+			foreach ($getVbDetail as $row) {
+				if ($row->headAccount == $key->szAccountId) {
+					$detailOut = array(
+						'iId' => $this->uuid->v4(),
+						'szDocId' => $vb,
+						'intItemNumber' => $num,
+						'szAccountId' => $row->szAccountId,
+						'szSubAccountId' => $row->szSubAccountId,
+						'decAmount' => $row->jumlahDetail,
+						'szDescription' => $row->szDescription,
+					);
+					// $this->mCashierSettlement->simpanData($detailOut, $base . '.dms_cas_doccashoutitem');
+					// $this->mCashierSettlement->simpanDms($detailOut, 'dmstesting.dms_cas_doccashoutitem');
+
+					$detailBalance = array(
+						'iId' => $this->uuid->v4(),
+						'szObjectId' => 'DMSDocCashOut',
+						'szDocId' => $vb,
+						'dtmDoc' => date('Y-m-d'),
+						'szAccountId' => $row->szAccountId,
+						'szSubAccountId' => $row->szSubAccountId,
+						'decDebit' => $row->jumlahDetail,
+						'decCredit' => '0.0000',
+						'decAmount' => $row->jumlahDetail - 0,
+						'bVoucher' => '1',
+						'szVoucherNo' => '',
+						'szBranchId' => $depo,
+						'szDescription' => '',
+						'intItemNumber' => '-1',
+						'szUserCreatedId' => $this->session->userdata('user_nik'),
+						'szUserUpdatedId' => $this->session->userdata('user_nik'),
+						'dtmCreated' => date('Y-m-d H:i:s'),
+						'dtmLastUpdated' => date('Y-m-d H:i:s'),
+					);
+					// $this->mCashierSettlement->simpanData($detailBalance, $base . '.dms_cas_cashbalance');
+					// $this->mCashierSettlement->simpanDms($detailBalance, 'dmstesting.dms_cas_cashbalance');
+
+					$detTempBalance = array(
+						'bVoucher' => '1',
+						'szVoucherNo' => $vb
+					);
+					$whereDetTempBalance = array(
+						'szDocId' => $row->szDocId,
+						'szObjectId' => 'DMSDocCashTempOut'
+					);
+					// $this->mCashierSettlement->updateData($whereDetTempBalance, $detTempBalance, $base . '.dms_cas_cashtempbalance');
+					// $this->mCashierSettlement->updateDms($whereDetTempBalance, $detTempBalance, 'dmstesting.dms_cas_cashtempbalance');
+
+					echo "<pre> VB DETAIL : " . var_export($detailOut, true) . "</pre>";
+					echo "<pre> VB DET TEMP : " . var_export($detTempBalance, true) . "</pre>";
+					echo "<pre> VB DET TEMP WHERE : " . var_export($whereDetTempBalance, true) . "</pre>";
 				}
-			} else if ($getCashBalanceSaldoHeader->num_rows() == 0) {
-				$dms_cashbalanceSaldo = array(
-					'iId' => $this->uuid->v4(),
-					'szBranchId' => $depo,
-					'szAccountId' => $szAccountId,
-					'szSubAccountId' => $szSubAccountId,
-					'decDebit' => '0',
-					'decCredit' => floatval($getAmountHeader),
-					'decAmount' => 0 - floatval($getAmountHeader),
-					'szUserCreatedId' => $user,
-					'szUserUpdatedId' => $user,
-					'dtmCreated' => $tanggal,
-					'dtmLastUpdated' => $tanggal
-				);
-				$this->mCashierBtu->simpanData($dms_cashbalanceSaldo, $base.'.dms_cas_cashbalancesaldo');
-			}
 
-			$getDetailItem = $this->mCashierSettlement->getItemDetail($getDocId);
-			$i = 0;
-			foreach ($getDetailItem as $data) {
-				$szAccountDetail = $data->szAccountId;
-				$szSubAccountDetail = $data->szSubAccountId;
-				$jumlah = $data->jumlahDetail;
-				$description = $data->szDescription;
-				$dms_doccashoutitem = array(
-					'iId' => $this->uuid->v4(),
-					'szDocId' => $getNomorVB,
-					'intItemNumber' => $i,
-					'szAccountId' => $szAccountDetail,
-					'szSubAccountId' => $szSubAccountDetail,
-					'decAmount' => $jumlah,
-					'szDescription' => $description
-				);
-				$this->mCashierBtu->simpanData($dms_doccashoutitem, $base.'.dms_cas_doccashoutitem');
-
-				$dms_cashbalancedetail = array(
-					'iId' => $this->uuid->v4(),
-					'szObjectId' => 'DMSDocCashOut',
-					'szDocId' => $getNomorVB,
-					'dtmDoc' => $tglFinish,
-					'szAccountId' => $szAccountDetail,
-					'szSubAccountId' => $szSubAccountDetail,
-					'decDebit' => $jumlah,
-					'decCredit' => '',
-					'decAmount' => $jumlah,
-					'bVoucher' => '1',
-					'szVoucherNo' => '',
-					'szBranchId' => $depo,
-					'szDescription' => $description,
-					'intItemNumber' => $i,
-					'szUserCreatedId' => $user,
-					'szUserUpdatedId' => $user,
-					'dtmCreated' => $tanggal,
-					'dtmLastUpdated' => $tanggal,
-				);
-				$this->mCashierBtu->simpanData($dms_cashbalancedetail, $base.'.dms_cas_cashbalance');
-
-				$getCashBalanceSaldoDetail = $this->db->query("SELECT * FROM $base.`dms_cas_cashbalancesaldo`
-				WHERE szBranchId = '$depo' 
-				AND szAccountId = '$szAccountDetail' AND szSubAccountId = '$szSubAccountDetail'");
-				if ($getCashBalanceSaldoDetail->num_rows() > 0) {
-					$getTempBalanceForSaldoDetail = $this->mCashierSettlement->getTempBalanceForSaldoDetail($szAccountDetail, $szSubAccountDetail, $depo);
-					foreach ($getTempBalanceForSaldoDetail as $data) {
-						$debit = floatval($data->decDebit) + floatval($jumlah);
-						$amount = floatval($debit) - floatval($data->decCredit);
-
-						$this->db->query("UPDATE $base.dms_cas_cashbalancesaldo 
-						SET decDebit = '$debit',
-						decAmount = '$amount',
-						szUserUpdatedId = '$user',
-						dtmLastUpdated = '$tanggal'
-						WHERE szAccountId = '$szAccountDetail' AND szSubAccountId = '$szSubAccountDetail'
-						AND szBranchId = '$depo'");
+				$detailSaldo = $this->mCashierSettlement->getSaldo($depo, $row->szAccountId, $row->szSubAccountId);
+				if (sizeof($detailSaldo) != '0') {
+					foreach ($detailSaldo as $saldo) {
+						if ($row->szAccountId == $saldo->szAccountId) {
+							$saldoDetail = array(
+								'decDebit' => $saldo->decDebit + $row->jumlahDetail,
+								'decAmount' => ($saldo->decDebit - $row->jumlahDetail) - $saldo->decCredit,
+								'szUserUpdatedId' => $this->session->userdata('user_nik'),
+								'dtmLastUpdated' => date('Y-m-d H:i:s')
+							);
+							$saldoDetailWhere = array(
+								'szBranchId' => $depo,
+								'szAccountId' => $saldo->szAccountId,
+								'szSubAccountId' => $saldo->szSubAccountId
+							);
+							// $this->mCashierSettlement->updateData($saldoDetailWhere, $saldoDetail, $base . '.dms_cas_cashbalancesaldo');
+							// $this->mCashierSettlement->updateDms($saldoDetailWhere, $saldoDetail, 'dmstesting.dms_cas_cashbalancesaldo');
+						}
 					}
-				} else if ($getCashBalanceSaldoDetail->num_rows() == 0) {
-					$dms_cashbalanceSaldo = array(
+				} else {
+					$detSaldo = array(
 						'iId' => $this->uuid->v4(),
 						'szBranchId' => $depo,
-						'szAccountId' => $szAccountDetail,
-						'szSubAccountId' => $szSubAccountDetail,
-						'decDebit' => $jumlah,
-						'decCredit' => 0,
-						'decAmount' => $jumlah,
-						'szUserCreatedId' => $user,
-						'szUserUpdatedId' => $user,
-						'dtmCreated' => $tanggal,
-						'dtmLastUpdated' => $tanggal
+						'szAccountId' => $row->szAccountId,
+						'szSubAccountId' => $row->szSubAccountId,
+						'decDebit' => '0',
+						'decCredit' => 0 - $row->total,
+						'decAmount' => 0 - $row->total,
+						'szUserCreatedId' => $this->session->userdata('user_nik'),
+						'szUserUpdatedId' => $this->session->userdata('user_nik'),
+						'dtmCreated' => date('Y-m-d H:i:s'),
+						'dtmLastUpdated' => date('Y-m-d H:i:s'),
 					);
-					$this->mCashierBtu->simpanData($dms_cashbalanceSaldo, $base.'.dms_cas_cashbalancesaldo');
+					// $this->mCashierSettlement->simpanData($detSaldo, $base . '.dms_cas_cashbalancesaldo');
 				}
-				$i++;
+				$num++;
 			}
 
-			$this->db->query("UPDATE $base.dms_cas_cashtempbalance SET bVoucher = '1',szVoucherNo = '$getNomorVB'
-			 WHERE szDocId IN ($getDocId) AND szObjectId = 'DMSDocCashTempOut'
-			 AND dtmDoc BETWEEN '$tglStart' AND '$tglFinish'");
+			$headerSaldo = $this->mCashierSettlement->getSaldo($depo, $key->szAccountId, $key->szSubAccountId);
+			if (sizeof($headerSaldo) != '0') {
+				foreach ($headerSaldo as $value) {
+					if ($key->szAccountId == $value->szAccountId) {
+						$saldoHeader = array(
+							'decCredit' => $value->decCredit + $key->total,
+							'decAmount' => $value->decDebit - ($value->decCredit - $key->total),
+							'szUserUpdatedId' => $this->session->userdata('user_nik'),
+							'dtmLastUpdated' => date('Y-m-d H:i:s')
+						);
+						$saldoHeaderWhere = array(
+							'szBranchId' => $depo,
+							'szAccountId' => $value->szAccountId,
+							'szSubAccountId' => $value->szSubAccountId
+						);
+						// $this->mCashierSettlement->updateData($saldoHeaderWhere, $saldoHeader, $base . '.dms_cas_cashbalancesaldo');
+						// $this->mCashierSettlement->updateDms($saldoHeaderWhere, $saldoHeader, 'dmstesting.dms_cas_cashbalancesaldo');
+					}
+				}
+			} else {
+				$headSaldo = array(
+					'iId' => $this->uuid->v4(),
+					'szBranchId' => $depo,
+					'szAccountId' => $key->szAccountId,
+					'szSubAccountId' => $key->szSubAccountId,
+					'decDebit' => '0',
+					'decCredit' => 0 - $key->total,
+					'decAmount' => 0 - $key->total,
+					'szUserCreatedId' => $this->session->userdata('user_nik'),
+					'szUserUpdatedId' => $this->session->userdata('user_nik'),
+					'dtmCreated' => date('Y-m-d H:i:s'),
+					'dtmLastUpdated' => date('Y-m-d H:i:s'),
+				);
+				// $this->mCashierSettlement->simpanData($headSaldo, $base . '.dms_cas_cashbalancesaldo');
+			}
 
-			array_push($noVoucherBayar, array(
-				$getNomorVB
-			));
-			$updateLastCounter = $this->mCashierSettlement->getNomorVB_ori();
-			$this->db->query("UPDATE $base.dms_sm_counter SET intLastCounter = '$updateLastCounter',
-			szUserUpdatedId = '$user',
-			dtmLastUpdated = '$tanggal'
-			WHERE szId = 'VB" . $depo . "COU' ");
+			$vb++;
+			$no++;
 		}
+
+		// update counter
+		$vbCounter = $this->mCashierSettlement->getCounter($vbId);
+		$updateCountVb = array(
+			'intLastCounter' => $vbCounter + $no,
+			'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+			'dtmLastUpdated' => date('Y-m-d H:i:s')
+		);
+		$whereCountVb = array('szId' => $vbId);
+		// $this->mCashierSettlement->updateData($whereCountVb, $updateCountVb, $base . '.dms_sm_counter');
+		// $this->mCashierSettlement->updateDms($whereCountVb, $updateCountVb, 'dmstesting.dms_sm_counter');
 	}
 
-	function simpanVt($tglStart, $tglFinish, $depo, $user, $tanggal, $dept)
+	function simpanVt($tglStart, $tglFinish, $depo, $dept)
 	{
 		if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
-            $base = 'mdbaasa';
-        }
-        else{
-            $base = 'mdbatvip';
-        }
-		$dms_doccashin = [];
-		$dms_doccashinitem = [];
-		$dms_cashbalanceheader = [];
-		$dms_cashbalancedetail = [];
-		$dms_cashbalanceSaldo = [];
-		$noVoucherBayar = [];
+			$base = 'mdbaasa';
+		} else {
+			$base = 'mdbatvip';
+		}
 
-		$getArrayBTU = $this->mCashierSettlement->getArrayBTU($tglStart, $tglFinish, $depo);
+		// NO ADJUSTMENT
+		$vtId = 'VT' . $depo . 'COU';
+		$vt = $this->mCashierSettlement->getId($vtId);
 
-		foreach ($getArrayBTU as $v) {
-			$szAccountId = $v->szAccountId;
-			$szSubAccountId = $v->szSubAccountId;
-			$getDocId = $this->mCashierSettlement->getDocIdIn($szAccountId, $tglStart, $tglFinish, $depo);
-			$getNomorVT = $this->mCashierSettlement->getNomorVT();
+		$getVtHeader = $this->mCashierSettlement->getVtHeader($tglStart, $tglFinish, $depo);
 
-			$dms_doccashin = array(
+		$no = 0;
+		foreach ($getVtHeader as $key) {
+			$headerOut = array(
 				'iId' => $this->uuid->v4(),
-				'szDocId' => $getNomorVT,
-				'dtmDoc' => $tglFinish,
-				'szEmployeeId' => $user,
-				'szAccountId' => $szAccountId,
-				'szSubAccountId' => $szSubAccountId,
+				'szDocId' => $vt,
+				'dtmDoc' => date('Y-m-d'),
+				'szEmployeeId' => $this->session->userdata('user_nik'),
+				'szAccountId' => $key->szAccountId,
+				'szSubAccountId' => $key->szSubAccountId,
 				'decAmountControl' => '0',
 				'intPrintedCount' => '0',
 				'szBranchId' => $depo,
-				'szCompanyId' =>  $dept,
+				'szCompanyId' => $dept,
 				'szDocStatus' => 'Applied',
-				'szUserCreatedId' => $user,
-				'szUserUpdatedId' => $user,
-				'dtmCreated' => $tanggal,
-				'dtmLastUpdated' => $tanggal,
+				'szUserCreatedId' => $this->session->userdata('user_nik'),
+				'szUserUpdatedId' => $this->session->userdata('user_nik'),
+				'dtmCreated' => date('Y-m-d H:i:s'),
+				'dtmLastUpdated' => date('Y-m-d H:i:s'),
 			);
-			$this->mCashierBtu->simpanData($dms_doccashin, $base.'.dms_cas_doccashin');
+			// $this->mCashierSettlement->simpanData($headerOut, $base . '.dms_cas_doccashin');
+			// $this->mCashierSettlement->simpanDms($headerOut, 'dmstesting.dms_cas_doccashin');
+			// echo "<pre> VB HEADER : " . var_export($headerOut, true) . "</pre>";
 
-			$getAmountHeaderIn = $this->mCashierSettlement->getAmountHeaderIn($getDocId);
-			$dms_cashbalanceheader = array(
+			$headerBalance = array(
 				'iId' => $this->uuid->v4(),
-				'szObjectId' => 'DMSDocCashIn',
-				'szDocId' => $getNomorVT,
-				'dtmDoc' => $$tglFinish,
-				'szAccountId' => $szAccountId,
-				'szSubAccountId' => $szSubAccountId,
-				'decDebit' => $getAmountHeaderIn,
-				'decCredit' => '0',
-				'decAmount' => floatval($getAmountHeaderIn),
+				'szObjectId' => 'DMSDocCashOut',
+				'szDocId' => $vt,
+				'dtmDoc' => date('Y-m-d'),
+				'szAccountId' => $key->szAccountId,
+				'szSubAccountId' => $key->szSubAccountId,
+				'decDebit' => '0.0000',
+				'decCredit' => $key->total,
+				'decAmount' => 0 - $key->total,
 				'bVoucher' => '1',
 				'szVoucherNo' => '',
 				'szBranchId' => $depo,
 				'szDescription' => '',
 				'intItemNumber' => '-1',
-				'szUserCreatedId' => $user,
-				'szUserUpdatedId' => $user,
-				'dtmCreated' => $tanggal,
-				'dtmLastUpdated' => $tanggal,
+				'szUserCreatedId' => $this->session->userdata('user_nik'),
+				'szUserUpdatedId' => $this->session->userdata('user_nik'),
+				'dtmCreated' => date('Y-m-d H:i:s'),
+				'dtmLastUpdated' => date('Y-m-d H:i:s'),
 			);
-			$this->mCashierBtu->simpanData($dms_cashbalanceheader, $base.'.dms_cas_cashbalance');
+			// $this->mCashierSettlement->simpanData($headerBalance, $base . '.dms_cas_cashbalance');
+			// $this->mCashierSettlement->simpanDms($headerBalance, 'dmstesting.dms_cas_cashbalance');
 
-			$getCashBalanceSaldoHeader = $this->db->query("SELECT * FROM `dms_cas_cashbalancesaldo`
-			WHERE szBranchId = '$depo' 
-			AND szAccountId = '$szAccountId' AND szSubAccountId = '$szSubAccountId'");
-			if ($getCashBalanceSaldoHeader->num_rows() > 0) {
-				$getTempBalanceForSaldo = $this->mCashierSettlement->getTempBalanceForSaldo($szAccountId, $szSubAccountId, $depo);
-				foreach ($getTempBalanceForSaldo as $data) {
-					$debit = floatval($data->decDebit) + floatval($getAmountHeaderIn);
-					$amount = floatval($debit) - floatval($data->decCredit);
-					$this->db2 = $this->load->database('asa', TRUE);
-					$this->db2->query("UPDATE $base.dms_cas_cashbalancesaldo 
-					SET decdebit = '$debit',
-					decAmount = '$amount',
-					szUserUpdatedId = '$user',
-					dtmLastUpdated = '$tanggal'
-					WHERE szAccountId = '$szAccountId' AND szSubAccountId = '$szSubAccountId'
-					AND szBranchId = '$depo'");
+			$headTempBalance = array(
+				'bVoucher' => '1',
+				'szVoucherNo' => $vt
+			);
+			$whereHeadTempBalance = array(
+				'szDocId' => $key->szDocId,
+				'szObjectId' => 'DMSDocCashTempIn'
+			);
+			// $this->mCashierSettlement->updateData($whereHeadTempBalance, $headTempBalance, $base . '.dms_cas_cashtempbalance');
+			// $this->mCashierSettlement->updateDms($whereHeadTempBalance, $headTempBalance, 'dmstesting.dms_cas_cashtempbalance');
+
+			$getVtDetail = $this->mCashierSettlement->getVtDetail($depo, $key->szAccountId, $key->szSubAccountId, $tglStart, $tglFinish);
+			$num = 0;
+			foreach ($getVtDetail as $row) {
+				if ($row->headAccount == $key->szAccountId) {
+					$detailOut = array(
+						'iId' => $this->uuid->v4(),
+						'szDocId' => $vt,
+						'intItemNumber' => $num,
+						'szAccountId' => $row->szAccountId,
+						'szSubAccountId' => $row->szSubAccountId,
+						'decAmount' => $row->jumlahDetail,
+						'szDescription' => $row->szDescription,
+					);
+					// $this->mCashierSettlement->simpanData($detailOut, $base . '.dms_cas_doccashinitem');
+					// $this->mCashierSettlement->simpanDms($detailOut, 'dmstesting.dms_cas_doccashinitem');
+
+					$detailBalance = array(
+						'iId' => $this->uuid->v4(),
+						'szObjectId' => 'DMSDocCashOut',
+						'szDocId' => $vt,
+						'dtmDoc' => date('Y-m-d'),
+						'szAccountId' => $row->szAccountId,
+						'szSubAccountId' => $row->szSubAccountId,
+						'decDebit' => $row->jumlahDetail,
+						'decCredit' => '0.0000',
+						'decAmount' => $row->jumlahDetail - 0,
+						'bVoucher' => '1',
+						'szVoucherNo' => '',
+						'szBranchId' => $depo,
+						'szDescription' => '',
+						'intItemNumber' => '-1',
+						'szUserCreatedId' => $this->session->userdata('user_nik'),
+						'szUserUpdatedId' => $this->session->userdata('user_nik'),
+						'dtmCreated' => date('Y-m-d H:i:s'),
+						'dtmLastUpdated' => date('Y-m-d H:i:s'),
+					);
+					// $this->mCashierSettlement->simpanData($detailBalance, $base . '.dms_cas_cashbalance');
+					// $this->mCashierSettlement->simpanDms($detailBalance, 'dmstesting.dms_cas_cashbalance');
+
+					$detTempBalance = array(
+						'bVoucher' => '1',
+						'szVoucherNo' => $vt
+					);
+					$whereDetTempBalance = array(
+						'szDocId' => $row->szDocId,
+						'szObjectId' => 'DMSDocCashTempOut'
+					);
+					// $this->mCashierSettlement->updateData($whereDetTempBalance, $detTempBalance, $base . '.dms_cas_cashtempbalance');
+					// $this->mCashierSettlement->updateDms($whereDetTempBalance, $detTempBalance, 'dmstesting.dms_cas_cashtempbalance');
+
+					echo "<pre> VB DETAIL : " . var_export($detailOut, true) . "</pre>";
+					echo "<pre> VB DET TEMP : " . var_export($detTempBalance, true) . "</pre>";
+					echo "<pre> VB DET TEMP WHERE : " . var_export($whereDetTempBalance, true) . "</pre>";
 				}
-			} else if ($getCashBalanceSaldoHeader->num_rows() == 0) {
-				$dms_cashbalanceSaldo = array(
-					'iId' => $this->uuid->v4(),
-					'szBranchId' => $depo,
-					'szAccountId' => $szAccountId,
-					'szSubAccountId' => $szSubAccountId,
-					'decDebit' => $getAmountHeaderIn,
-					'decCredit' => '0',
-					'decAmount' => floatval($$getAmountHeaderIn),
-					'szUserCreatedId' => $user,
-					'szUserUpdatedId' => $user,
-					'dtmCreated' => $tanggal,
-					'dtmLastUpdated' => $tanggal
-				);
-				$this->mCashierBtu->simpanData($dms_cashbalanceSaldo, $base.'.dms_cas_cashbalancesaldo');
-			}
 
-			$getItemDetailIn = $this->mCashierSettlement->getItemDetailIn($getDocId);
-			$i = 0;
-
-			foreach ($getItemDetailIn as $data) {
-				$szAccountDetail = $data->szAccountId;
-				$szSubAccountDetail = $data->szSubAccountId;
-				$jumlah = $data->jumlahDetail;
-				$description = $data->szDescription;
-
-				$dms_doccashinitem = array(
-					'iId' => $this->uuid->v4(),
-					'szDocId' => $getNomorVT,
-					'intItemNumber' => $i,
-					'szAccountId' => $szAccountDetail,
-					'szSubAccountId' => $szSubAccountDetail,
-					'decAmount' => $jumlah,
-					'szDescription' => $description
-				);
-				$this->mCashierBtu->simpanData($dms_doccashinitem, $base.'.dms_cas_doccashinitem');
-
-				$dms_cashbalancedetail = array(
-					'iId' => $this->uuid->v4(),
-					'szObjectId' => 'DMSDocCashIn',
-					'szDocId' => $getNomorVT,
-					'dtmDoc' => $tglFinish,
-					'szAccountId' => $szAccountDetail,
-					'szSubAccountId' => $szSubAccountDetail,
-					'decDebit' => '0',
-					'decCredit' => $jumlah,
-					'decAmount' => 0 - floatval($jumlah),
-					'bVoucher' => '1',
-					'szVoucherNo' => '',
-					'szBranchId' => $depo,
-					'szDescription' => $description,
-					'intItemNumber' => $i,
-					'szUserCreatedId' => $user,
-					'szUserUpdatedId' => $user,
-					'dtmCreated' => $tanggal,
-					'dtmLastUpdated' => $tanggal,
-				);
-				$this->mCashierBtu->simpanData($dms_cashbalancedetail, $base.'.dms_cas_cashbalance');
-
-				$getCashBalanceSaldoDetail = $this->db->query("SELECT * FROM $base.`dms_cas_cashbalancesaldo`
-				WHERE szBranchId = '$depo' 
-				AND szAccountId = '$szAccountDetail' AND szSubAccountId = '$szSubAccountDetail'");
-
-				if ($getCashBalanceSaldoDetail->num_rows() > 0) {
-					$getTempBalanceForSaldoDetail = $this->mCashierSettlement->getTempBalanceForSaldoDetail($szAccountDetail, $szSubAccountDetail, $depo);
-					foreach ($getTempBalanceForSaldoDetail as $data) {
-						$credit = floatval($data->decCredit) + floatval($jumlah);
-						$amount = floatval($data->decDebit) - floatval($credit);
-						$this->db->query("UPDATE $base.dms_cas_cashbalancesaldo 
-						SET decCredit = '$credit',
-						decAmount = '$amount',
-						szUserUpdatedId = '$user',
-						dtmLastUpdated = '$tanggal'
-						WHERE szAccountId = '$szAccountDetail' AND szSubAccountId = '$szSubAccountDetail'
-						AND szBranchId = '$depo'");
+				$detailSaldo = $this->mCashierSettlement->getSaldo($depo, $row->szAccountId, $row->szSubAccountId);
+				if (sizeof($detailSaldo) != '0') {
+					foreach ($detailSaldo as $saldo) {
+						if ($row->szAccountId == $saldo->szAccountId) {
+							$saldoDetail = array(
+								'decDebit' => $saldo->decDebit + $row->jumlahDetail,
+								'decAmount' => ($saldo->decDebit - $row->jumlahDetail) - $saldo->decCredit,
+								'szUserUpdatedId' => $this->session->userdata('user_nik'),
+								'dtmLastUpdated' => date('Y-m-d H:i:s')
+							);
+							$saldoDetailWhere = array(
+								'szBranchId' => $depo,
+								'szAccountId' => $saldo->szAccountId,
+								'szSubAccountId' => $saldo->szSubAccountId
+							);
+							// $this->mCashierSettlement->updateData($saldoDetailWhere, $saldoDetail, $base . '.dms_cas_cashbalancesaldo');
+							// $this->mCashierSettlement->updateDms($saldoDetailWhere, $saldoDetail, 'dmstesting.dms_cas_cashbalancesaldo');
+						}
 					}
-				} else if ($getCashBalanceSaldoDetail->num_rows() == 0) {
-					$dms_cashbalanceSaldo = array(
+				} else {
+					$detSaldo = array(
 						'iId' => $this->uuid->v4(),
 						'szBranchId' => $depo,
-						'szAccountId' => $szAccountDetail,
-						'szSubAccountId' => $szSubAccountDetail,
+						'szAccountId' => $row->szAccountId,
+						'szSubAccountId' => $row->szSubAccountId,
 						'decDebit' => '0',
-						'decCredit' => $jumlah,
-						'decAmount' => 0 - floatval($jumlah),
-						'szUserCreatedId' => $user,
-						'szUserUpdatedId' => $user,
-						'dtmCreated' => $tanggal,
-						'dtmLastUpdated' => $tanggal
+						'decCredit' => 0 - $row->total,
+						'decAmount' => 0 - $row->total,
+						'szUserCreatedId' => $this->session->userdata('user_nik'),
+						'szUserUpdatedId' => $this->session->userdata('user_nik'),
+						'dtmCreated' => date('Y-m-d H:i:s'),
+						'dtmLastUpdated' => date('Y-m-d H:i:s'),
 					);
-					$this->mCashierBtu->simpanData($dms_cashbalanceSaldo, $base.'.dms_cas_cashbalancesaldo');
+					// $this->mCashierSettlement->simpanData($detSaldo, $base . '.dms_cas_cashbalancesaldo');
 				}
-				$i++;
+				$num++;
 			}
 
-			$this->db->query("UPDATE $base.dms_cas_cashtempbalance SET bVoucher = '1',szVoucherNo = '$getNomorVT'
-			 WHERE szDocId IN ($getDocId) AND szObjectId = 'DMSDocCashTempIn'
-			 AND dtmDoc = '$tglFinish'");
+			$headerSaldo = $this->mCashierSettlement->getSaldo($depo, $key->szAccountId, $key->szSubAccountId);
+			if (sizeof($headerSaldo) != '0') {
+				foreach ($headerSaldo as $value) {
+					if ($key->szAccountId == $value->szAccountId) {
+						$saldoHeader = array(
+							'decCredit' => $value->decCredit + $key->total,
+							'decAmount' => $value->decDebit - ($value->decCredit - $key->total),
+							'szUserUpdatedId' => $this->session->userdata('user_nik'),
+							'dtmLastUpdated' => date('Y-m-d H:i:s')
+						);
+						$saldoHeaderWhere = array(
+							'szBranchId' => $depo,
+							'szAccountId' => $value->szAccountId,
+							'szSubAccountId' => $value->szSubAccountId
+						);
+						// $this->mCashierSettlement->updateData($saldoHeaderWhere, $saldoHeader, $base . '.dms_cas_cashbalancesaldo');
+						// $this->mCashierSettlement->updateDms($saldoHeaderWhere, $saldoHeader, 'dmstesting.dms_cas_cashbalancesaldo');
+					}
+				}
+			} else {
+				$headSaldo = array(
+					'iId' => $this->uuid->v4(),
+					'szBranchId' => $depo,
+					'szAccountId' => $key->szAccountId,
+					'szSubAccountId' => $key->szSubAccountId,
+					'decDebit' => '0',
+					'decCredit' => 0 - $key->total,
+					'decAmount' => 0 - $key->total,
+					'szUserCreatedId' => $this->session->userdata('user_nik'),
+					'szUserUpdatedId' => $this->session->userdata('user_nik'),
+					'dtmCreated' => date('Y-m-d H:i:s'),
+					'dtmLastUpdated' => date('Y-m-d H:i:s'),
+				);
+				// $this->mCashierSettlement->simpanData($headSaldo, $base . '.dms_cas_cashbalancesaldo');
+			}
 
-			array_push($noVoucherBayar, array(
-				$getNomorVT
-			));
-			$updateLastCounter = $this->mCashierSettlement->getNomorVT_ori();
-			$this->db->query("UPDATE $base.dms_sm_counter SET intLastCounter = '$updateLastCounter',
-			szUserUpdatedId = '$user',
-			dtmLastUpdated = '$tanggal'
-			WHERE szId = 'VT" . $depo . "COU'");
+			$vt++;
+			$no++;
 		}
+
+		// update counter
+		$vtCounter = $this->mCashierSettlement->getCounter($vtId);
+		$updateCountVt = array(
+			'intLastCounter' => $vtCounter + $no,
+			'szUserUpdatedId' => 'mdba-' . $this->session->userdata('user_nik'),
+			'dtmLastUpdated' => date('Y-m-d H:i:s')
+		);
+		$whereCountVb = array('szId' => $vtId);
+		// $this->mCashierSettlement->updateData($whereCountVb, $updateCountVb, $base . '.dms_sm_counter');
+		// $this->mCashierSettlement->updateDms($whereCountVb, $updateCountVb, 'dmstesting.dms_sm_counter');
 	}
+
+	// function simpanVt($tglStart, $tglFinish, $depo, $user, $tanggal, $dept)
+	// {
+	// 	if ($this->session->userdata('user_branch') == '321' || $this->session->userdata('user_branch') == '336' || $this->session->userdata('user_branch') == '324') {
+	// 		$base = 'mdbaasa';
+	// 	} else {
+	// 		$base = 'mdbatvip';
+	// 	}
+	// 	$dms_doccashin = [];
+	// 	$dms_doccashinitem = [];
+	// 	$dms_cashbalanceheader = [];
+	// 	$dms_cashbalancedetail = [];
+	// 	$dms_cashbalanceSaldo = [];
+	// 	$noVoucherBayar = [];
+
+	// 	$getArrayBTU = $this->mCashierSettlement->getArrayBTU($tglStart, $tglFinish, $depo);
+
+	// 	foreach ($getArrayBTU as $v) {
+	// 		$szAccountId = $v->szAccountId;
+	// 		$szSubAccountId = $v->szSubAccountId;
+	// 		$getDocId = $this->mCashierSettlement->getDocIdIn($szAccountId, $tglStart, $tglFinish, $depo);
+	// 		$getNomorVT = $this->mCashierSettlement->getNomorVT();
+
+	// 		$dms_doccashin = array(
+	// 			'iId' => $this->uuid->v4(),
+	// 			'szDocId' => $getNomorVT,
+	// 			'dtmDoc' => $tglFinish,
+	// 			'szEmployeeId' => $user,
+	// 			'szAccountId' => $szAccountId,
+	// 			'szSubAccountId' => $szSubAccountId,
+	// 			'decAmountControl' => '0',
+	// 			'intPrintedCount' => '0',
+	// 			'szBranchId' => $depo,
+	// 			'szCompanyId' =>  $dept,
+	// 			'szDocStatus' => 'Applied',
+	// 			'szUserCreatedId' => $user,
+	// 			'szUserUpdatedId' => $user,
+	// 			'dtmCreated' => $tanggal,
+	// 			'dtmLastUpdated' => $tanggal,
+	// 		);
+	// 		$this->mCashierBtu->simpanData($dms_doccashin, $base . '.dms_cas_doccashin');
+
+	// 		$getAmountHeaderIn = $this->mCashierSettlement->getAmountHeaderIn($getDocId);
+	// 		$dms_cashbalanceheader = array(
+	// 			'iId' => $this->uuid->v4(),
+	// 			'szObjectId' => 'DMSDocCashIn',
+	// 			'szDocId' => $getNomorVT,
+	// 			'dtmDoc' => $$tglFinish,
+	// 			'szAccountId' => $szAccountId,
+	// 			'szSubAccountId' => $szSubAccountId,
+	// 			'decDebit' => $getAmountHeaderIn,
+	// 			'decCredit' => '0',
+	// 			'decAmount' => floatval($getAmountHeaderIn),
+	// 			'bVoucher' => '1',
+	// 			'szVoucherNo' => '',
+	// 			'szBranchId' => $depo,
+	// 			'szDescription' => '',
+	// 			'intItemNumber' => '-1',
+	// 			'szUserCreatedId' => $user,
+	// 			'szUserUpdatedId' => $user,
+	// 			'dtmCreated' => $tanggal,
+	// 			'dtmLastUpdated' => $tanggal,
+	// 		);
+	// 		$this->mCashierBtu->simpanData($dms_cashbalanceheader, $base . '.dms_cas_cashbalance');
+
+	// 		$getCashBalanceSaldoHeader = $this->db->query("SELECT * FROM `dms_cas_cashbalancesaldo`
+	// 		WHERE szBranchId = '$depo' 
+	// 		AND szAccountId = '$szAccountId' AND szSubAccountId = '$szSubAccountId'");
+	// 		if ($getCashBalanceSaldoHeader->num_rows() > 0) {
+	// 			$getTempBalanceForSaldo = $this->mCashierSettlement->getTempBalanceForSaldo($szAccountId, $szSubAccountId, $depo);
+	// 			foreach ($getTempBalanceForSaldo as $data) {
+	// 				$debit = floatval($data->decDebit) + floatval($getAmountHeaderIn);
+	// 				$amount = floatval($debit) - floatval($data->decCredit);
+	// 				$this->db2 = $this->load->database('asa', TRUE);
+	// 				$this->db2->query("UPDATE $base.dms_cas_cashbalancesaldo 
+	// 				SET decdebit = '$debit',
+	// 				decAmount = '$amount',
+	// 				szUserUpdatedId = '$user',
+	// 				dtmLastUpdated = '$tanggal'
+	// 				WHERE szAccountId = '$szAccountId' AND szSubAccountId = '$szSubAccountId'
+	// 				AND szBranchId = '$depo'");
+	// 			}
+	// 		} else if ($getCashBalanceSaldoHeader->num_rows() == 0) {
+	// 			$dms_cashbalanceSaldo = array(
+	// 				'iId' => $this->uuid->v4(),
+	// 				'szBranchId' => $depo,
+	// 				'szAccountId' => $szAccountId,
+	// 				'szSubAccountId' => $szSubAccountId,
+	// 				'decDebit' => $getAmountHeaderIn,
+	// 				'decCredit' => '0',
+	// 				'decAmount' => floatval($$getAmountHeaderIn),
+	// 				'szUserCreatedId' => $user,
+	// 				'szUserUpdatedId' => $user,
+	// 				'dtmCreated' => $tanggal,
+	// 				'dtmLastUpdated' => $tanggal
+	// 			);
+	// 			$this->mCashierBtu->simpanData($dms_cashbalanceSaldo, $base . '.dms_cas_cashbalancesaldo');
+	// 		}
+
+	// 		$getItemDetailIn = $this->mCashierSettlement->getItemDetailIn($getDocId);
+	// 		$i = 0;
+
+	// 		foreach ($getItemDetailIn as $data) {
+	// 			$szAccountDetail = $data->szAccountId;
+	// 			$szSubAccountDetail = $data->szSubAccountId;
+	// 			$jumlah = $data->jumlahDetail;
+	// 			$description = $data->szDescription;
+
+	// 			$dms_doccashinitem = array(
+	// 				'iId' => $this->uuid->v4(),
+	// 				'szDocId' => $getNomorVT,
+	// 				'intItemNumber' => $i,
+	// 				'szAccountId' => $szAccountDetail,
+	// 				'szSubAccountId' => $szSubAccountDetail,
+	// 				'decAmount' => $jumlah,
+	// 				'szDescription' => $description
+	// 			);
+	// 			$this->mCashierBtu->simpanData($dms_doccashinitem, $base . '.dms_cas_doccashinitem');
+
+	// 			$dms_cashbalancedetail = array(
+	// 				'iId' => $this->uuid->v4(),
+	// 				'szObjectId' => 'DMSDocCashIn',
+	// 				'szDocId' => $getNomorVT,
+	// 				'dtmDoc' => $tglFinish,
+	// 				'szAccountId' => $szAccountDetail,
+	// 				'szSubAccountId' => $szSubAccountDetail,
+	// 				'decDebit' => '0',
+	// 				'decCredit' => $jumlah,
+	// 				'decAmount' => 0 - floatval($jumlah),
+	// 				'bVoucher' => '1',
+	// 				'szVoucherNo' => '',
+	// 				'szBranchId' => $depo,
+	// 				'szDescription' => $description,
+	// 				'intItemNumber' => $i,
+	// 				'szUserCreatedId' => $user,
+	// 				'szUserUpdatedId' => $user,
+	// 				'dtmCreated' => $tanggal,
+	// 				'dtmLastUpdated' => $tanggal,
+	// 			);
+	// 			$this->mCashierBtu->simpanData($dms_cashbalancedetail, $base . '.dms_cas_cashbalance');
+
+	// 			$getCashBalanceSaldoDetail = $this->db->query("SELECT * FROM $base.`dms_cas_cashbalancesaldo`
+	// 			WHERE szBranchId = '$depo' 
+	// 			AND szAccountId = '$szAccountDetail' AND szSubAccountId = '$szSubAccountDetail'");
+
+	// 			if ($getCashBalanceSaldoDetail->num_rows() > 0) {
+	// 				$getTempBalanceForSaldoDetail = $this->mCashierSettlement->getTempBalanceForSaldoDetail($szAccountDetail, $szSubAccountDetail, $depo);
+	// 				foreach ($getTempBalanceForSaldoDetail as $data) {
+	// 					$credit = floatval($data->decCredit) + floatval($jumlah);
+	// 					$amount = floatval($data->decDebit) - floatval($credit);
+	// 					$this->db->query("UPDATE $base.dms_cas_cashbalancesaldo 
+	// 					SET decCredit = '$credit',
+	// 					decAmount = '$amount',
+	// 					szUserUpdatedId = '$user',
+	// 					dtmLastUpdated = '$tanggal'
+	// 					WHERE szAccountId = '$szAccountDetail' AND szSubAccountId = '$szSubAccountDetail'
+	// 					AND szBranchId = '$depo'");
+	// 				}
+	// 			} else if ($getCashBalanceSaldoDetail->num_rows() == 0) {
+	// 				$dms_cashbalanceSaldo = array(
+	// 					'iId' => $this->uuid->v4(),
+	// 					'szBranchId' => $depo,
+	// 					'szAccountId' => $szAccountDetail,
+	// 					'szSubAccountId' => $szSubAccountDetail,
+	// 					'decDebit' => '0',
+	// 					'decCredit' => $jumlah,
+	// 					'decAmount' => 0 - floatval($jumlah),
+	// 					'szUserCreatedId' => $user,
+	// 					'szUserUpdatedId' => $user,
+	// 					'dtmCreated' => $tanggal,
+	// 					'dtmLastUpdated' => $tanggal
+	// 				);
+	// 				$this->mCashierBtu->simpanData($dms_cashbalanceSaldo, $base . '.dms_cas_cashbalancesaldo');
+	// 			}
+	// 			$i++;
+	// 		}
+
+	// 		$this->db->query("UPDATE $base.dms_cas_cashtempbalance SET bVoucher = '1',szVoucherNo = '$getNomorVT'
+	// 		 WHERE szDocId IN ($getDocId) AND szObjectId = 'DMSDocCashTempIn'
+	// 		 AND dtmDoc = '$tglFinish'");
+
+	// 		array_push($noVoucherBayar, array(
+	// 			$getNomorVT
+	// 		));
+	// 		$updateLastCounter = $this->mCashierSettlement->getNomorVT_ori();
+	// 		$this->db->query("UPDATE $base.dms_sm_counter SET intLastCounter = '$updateLastCounter',
+	// 		szUserUpdatedId = '$user',
+	// 		dtmLastUpdated = '$tanggal'
+	// 		WHERE szId = 'VT" . $depo . "COU'");
+	// 	}
+	// }
 }

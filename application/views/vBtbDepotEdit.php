@@ -4,13 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MDBA - BTB DEPOT</title>
+    <title>MDBA - BTB DEPOT </title>
 
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/index/css/bootstrap.css">
 
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/index/vendors/perfect-scrollbar/perfect-scrollbar.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/index/css/app.css">
     <link rel="shortcut icon" href="<?php echo base_url(); ?>assets/icon/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <!-- SELECT2 -->
     <link href="<?php echo base_url(); ?>assets/dist/css/select2.min.css" rel="stylesheet" />
     <style>
@@ -55,6 +56,32 @@
                 title: 'Mohon Input Data Dengan Benar',
             })
         </script>
+    <?php } else if ($this->session->flashdata('info')) { ?>
+        <script>
+            Swal.fire({
+                type: 'info',
+                title: 'Data Berhasil Tersimpan',
+                text: 'Apakah ingin menambahkan BTB?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya'
+            }).then((result) => {
+                if (result.value == true) {
+                    $.ajax({
+                        success: function() {
+                            location.href = "<?= base_url('inventDepot/manualBtb'); ?>"
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        success: function() {
+                            location.href = "<?= base_url('inventDepot/historyBtb'); ?>"
+                        }
+                    });
+                }
+            })
+        </script>
     <?php } ?>
     <div id="app">
         <?php include('sideBar.php'); ?>
@@ -90,238 +117,151 @@
                                 </div>
                                 <div class="card-content">
                                     <div class="card-body">
-                                        <form class="form" action="<?php echo base_url('inventDepot/updateBtb'); ?>" method="POST">
+                                        <?php
+                                        foreach ($data as $value) {
+                                            $btbOld = $value->szDocId;
+                                            $bkbOld = $value->refOld;
+                                            $tanggal = $value->dtmDoc;
+                                            $pengemudi = $value->pengemudi;
+                                            $pengemudiId = $value->szEmployeeId;
+                                            $kendaraan = $value->kendaraan;
+                                            $kendaraanId = $value->szVehicleId;
+                                            $gudang = $value->gudang;
+                                            $gudangId = $value->szWarehouseId;
+                                            $stok = $value->stok;
+                                            $stokId = $value->idStok;
+                                            $keterangan = $value->szDescription;
+                                            $produk = $value->product;
+                                            $produkId = $value->szProductId;
+                                            $qty = $value->decQty;
+                                            $satuan = $value->szUomId;
+                                            $partyId = $value->szPartyId;
+                                            if ($value->so == '') {
+                                                $party = $value->depo;
+                                            } else {
+                                                $party = $value->so;
+                                            }
+                                        }
+                                        ?>
+                                        <form class="form" id="formId" action="<?php echo base_url('inventDepot/updateBtb'); ?>" method="POST">
                                             <div class="row">
-                                                <?php
-                                                foreach ($data as $value) {
-                                                    $oldBtb = $value->szDocId;
-                                                    $tanggal = $value->dtmDoc;
-                                                    $bkb = $value->refOld;
-                                                    $pengemudiNama = $value->pengemudi;
-                                                    $pengemudi = $value->szEmployeeId;
-                                                    $kendaraanNama = $value->kendaraan;
-                                                    $kendaraan = $value->szVehicleId;
-                                                    $gudangNama = $value->gudang;
-                                                    $gudang = $value->szWarehouseId;
-                                                    $stokNama = $value->stok;
-                                                    $stok = $value->szStockType;
-                                                    $keterangan = $value->szDescription;
-                                                    $asal = $value->szPartyId;
-                                                    if ($value->depo != '') {
-                                                        $asalNama = $value->depo;
-                                                    } else {
-                                                        $asalNama = $value->so;
-                                                    }
-                                                }
-                                                ?>
                                                 <div class="col-md-3 col-12">
                                                     <div class="form-group">
-                                                        <label for="first-name-column">No. BTB</label>
-                                                        <input type="text" id="idBtbOld" class="form-control" name="btbOld" readonly value="<?= $oldBtb; ?>">
-                                                        <input type="hidden" id="idBkb" class="form-control" name="bkb" readonly value="<?= $bkb; ?>">
+                                                        <label for="last-name-column">No. BTB Lama</label>
+                                                        <input type="text" id="noDoc" class="form-control" name="btbOld" readonly value="<?= $btbOld; ?>">
+                                                        <input type="hidden" id="noDoc" class="form-control" name="bkbOld" readonly value="<?= $bkbOld; ?>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 col-12">
+                                                    <div class="form-group">
+                                                        <label for="last-name-column">No. BTB Pembatal</label>
+                                                        <input type="text" id="noDoc" class="form-control" name="btbCancel" readonly value="<?= $btb; ?>">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3 col-12">
                                                     <div class="form-group">
                                                         <label for="last-name-column">No. Adjustment</label>
-                                                        <input type="text" id="idBtb" class="form-control" name="btb" readonly value="<?= $btb; ?>">
-                                                        <input type="hidden" id="idAdjustment" class="form-control" name="adjustment" value="<?= $adjustment; ?>">
+                                                        <input type="text" id="noAdjustment" class="form-control" name="adjNo" readonly value="<?= $adjustment; ?>" readonly>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-2 col-12">
+                                                <div class="col-md-3 col-12">
                                                     <div class="form-group">
                                                         <label for="last-name-column">Tanggal</label>
-                                                        <input type="date" id="idTgl" class="form-control" name="tgl" value="<?= date('Y-m-d'); ?>" required>
+                                                        <input type="text" id="idTgl" class="form-control" name="tgl" value="<?= $tanggal; ?>" required readonly>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4 col-12">
-                                                    <div class="form-group">
-                                                        <label for="last-name-column">Depo Asal</label>
-                                                        <div class="row">
-                                                            <div class="col-3" style="padding-right: 0">
-                                                                <select class="js-example-basic-single col-md-2 form-select" name="asal" id="idAsal" onchange="getFormDepoAsal()">
-                                                                    <option value="-" disabled>Pilih Depo</option>
-                                                                    <option value=""></option>
-                                                                    <?php
-                                                                    foreach ($branch as $value) {
-                                                                        if ($value->szId == $asal) { ?>
-                                                                            <option value="<?= $value->szId; ?>" selected><?= $value->szId; ?></option>
-                                                                        <?php } else { ?>
-                                                                            <option value="<?= $value->szId; ?>"><?= $value->szId; ?></option>
-                                                                    <?php
-                                                                        }
-                                                                    }
-                                                                    ?>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-9" style="padding-left: 0;">
-                                                                <input type="text" id="namaAsal" class="form-control" name="namaAsal" readonly value="<?= $asalNama; ?>">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6 col-12">
+
+                                                <div class="col-md-3 col-12">
                                                     <div class="form-group">
                                                         <label for="city-column">Gudang</label>
                                                         <select class="js-example-basic-single col-md-6 form-select" name="gudang" id="idGudang">
-                                                            <option value="-" disabled>Pilih Gudang</option>
-                                                            <?php
-                                                            foreach ($warehouse as $value) {
-                                                                if ($value->szId == $gudang) {
-                                                            ?>
-                                                                    <option value="<?= $value->szId; ?>" selected><?= $value->szId; ?> - <?= $value->szName; ?></option>
-                                                                <?php
-                                                                } else {
-                                                                ?>
-                                                                    <option value="<?= $value->szId; ?>"><?= $value->szName; ?></option>
-                                                            <?php }
-                                                            }
-                                                            ?>
+                                                            <option value="<?= $gudangId; ?>" selected><?= $gudangId; ?> - <?= $gudang; ?></option>
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 col-12">
+                                                <div class="col-md-3 col-12">
                                                     <div class="form-group">
                                                         <label for="city-column">Tipe Stok</label>
-                                                        <select class="js-example-basic-single col-md-6 form-select" name="stok" id="stok">
-                                                            <option value="-" disabled>Pilih Tipe Stok</option>
-                                                            <?php
-                                                            foreach ($stock as $value) {
-                                                                if ($value->szId == $stok) {
-                                                            ?>
-                                                                    <option value="<?= $value->szId; ?>" selected><?= $value->szId . " (" . $value->szName . ")"; ?></option>
-                                                                <?php
-                                                                } else { ?>
-                                                                    <option value="<?= $value->szId; ?>"><?= $value->szId . " (" . $value->szName . ")"; ?></option>
-                                                            <?php
-                                                                }
-                                                            }
-                                                            ?>
+                                                        <select class="js-example-basic-single col-md-6 form-select" name="stok" id="idStok">
+                                                            <option value="<?= $stokId; ?>" selected><?= $stokId . " (" . $stok . ")"; ?></option>
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 col-12">
+                                                <div class="col-md-3 col-12">
+                                                    <div class="form-group">
+                                                        <label for="city-column">Dari Depo</label>
+                                                        <select class="js-example-basic-single col-md-6 form-select" name="depo" id="idDepo">
+                                                            <option value="<?= $partyId; ?>" selected><?= $partyId; ?> - <?= $party; ?></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-3 col-12">
                                                     <div class="form-group">
                                                         <label for="city-column">Pengemudi</label>
-                                                        <div class="row">
-                                                            <div class="col-4" style="padding-right: 0">
-                                                                <select class="js-example-basic-single col-md-6 form-select" name="pengemudi" id="idPengemudi" onchange="getFormPengemudi()">
-                                                                    <option value="-" disabled>Pilih Pengemudi</option>
-                                                                    <?php
-                                                                    foreach ($employee as $value) {
-                                                                        if ($value->szId == $pengemudi) { ?>
-                                                                            <option value="<?= $value->szId; ?>" selected><?= $value->szId; ?></option>
-                                                                        <?php } else { ?>
-                                                                            <option value="<?= $value->szId; ?>"><?= $value->szId; ?></option>
-                                                                    <?php }
-                                                                    }
-                                                                    ?>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-8" style="padding-left: 0;">
-                                                                <input type="text" id="pengemudiNama" class="form-control" name="namaPengemudi" readonly value="<?= $pengemudiNama; ?>">
-                                                            </div>
-                                                        </div>
+                                                        <select class="js-example-basic-single col-md-6 form-select" name="pengemudi" id="pengemudi">
+                                                            <option value="<?= $pengemudiId; ?>" selected><?= $pengemudiId; ?> - <?= $pengemudi; ?></option>
+                                                        </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 col-12">
+                                                <div class="col-md-3 col-12">
                                                     <div class="form-group">
                                                         <label for="city-column">Kendaraan</label>
-                                                        <div class="row">
-                                                            <div class="col-4" style="padding-right: 0">
-                                                                <select class="js-example-basic-single col-md-6 form-select" name="kendaraan" id="idKendaraan" onchange="getFormKendaraan()">
-                                                                    <option value="-" disabled>Pilih Kendaraan</option>
-                                                                    <?php
-                                                                    foreach ($vehicle as $value) {
-                                                                        if ($value->szId == $kendaraan) { ?>
-                                                                            <option value="<?= $value->szId; ?>" selected><?= $value->szId; ?></option>
-                                                                        <?php } else { ?>
-                                                                            <option value="<?= $value->szId; ?>"><?= $value->szId; ?></option>
-                                                                    <?php }
-                                                                    }
-                                                                    ?>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-8" style="padding-left: 0;">
-                                                                <input type="text" id="kendaraanNama" class="form-control" name="namaKendaraan" readonly value="<?= $kendaraanNama; ?>">
-                                                            </div>
-                                                        </div>
+                                                        <select class="js-example-basic-single col-md-6 form-select" name="kendaraan" id="kendaraan">
+                                                            <option value="<?= $kendaraanId; ?>" selected><?= $kendaraanId; ?> - <?= $kendaraan; ?></option>
+                                                        </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12 col-12">
+
+                                                <div class="col-md-6 col-12">
                                                     <div class="form-group">
-                                                        <label for="city-column">Keterangan</label>
-                                                        <textarea name="keterangan" class="form-control" id="keterangan" cols="20" rows="5" required><?= $keterangan; ?></textarea>
+                                                        <label for="last-name-column">Keterangan</label>
+                                                        <input type="text" name="keterangan" class="form-control" id="keterangan" value="<?= $keterangan; ?>" required autocomplete="off">
                                                     </div>
                                                 </div>
+
                                                 <div class="col-md-12 col-12">
                                                     <table class='table table-striped'>
                                                         <thead>
                                                             <tr>
                                                                 <th>No.</th>
-                                                                <th>Kode</th>
                                                                 <th>Produk</th>
                                                                 <th>Qty</th>
                                                                 <th>Satuan</th>
-                                                                <th>Aksi</th>
+                                                                <!-- <th>Aksi</th> -->
                                                             </tr>
                                                         </thead>
                                                         <tbody id="table_body" class="view-this">
                                                             <?php
                                                             $no = 0;
-                                                            foreach ($data as $prod) { ?>
+                                                            $row = count($data);
+                                                            $num = 1;
+                                                            foreach ($data as $prod) {
+                                                            ?>
                                                                 <tr id="baris<?= $no; ?>">
-                                                                    <td><?= $no + 1; ?></td>
-                                                                    <td>
-                                                                        <select class="js-example-basic-single form-select" name="kode[<?= $no; ?>]" id="idKode<?= $no; ?>" required onchange="getFormProduk(<?= $no; ?>)">
-                                                                            <option value="-" disabled>Pilih Produk</option>
-                                                                            <?php
-                                                                            foreach ($product as $value) {
-                                                                                if ($prod->szProductId == $value->szId) { ?>
-                                                                                    <option value="<?= $value->szId; ?>" selected><?= $value->szId; ?></option>
-                                                                                <?php
-                                                                                } else {
-                                                                                ?>
-                                                                                    <option value="<?= $value->szId; ?>"><?= $value->szId; ?></option>
-                                                                            <?php
-                                                                                }
-                                                                            }
-                                                                            ?>
+                                                                    <td><?= $num; ?><input type="hidden" id="counter" value="<?= $no; ?>"><input name="num[]" type="hidden" value="<?= $no; ?>"></td>
+                                                                    <td style="width: 30em;">
+                                                                        <select class="js-example-basic-single form-select" style="width: 100%" name="produk[]" id="idProduk<?= $no; ?>" required>
+                                                                            <option value="<?= $value->szProductId; ?>" selected><?= $value->szProductId; ?> - <?= $value->product; ?></option>
                                                                         </select>
                                                                     </td>
                                                                     <td>
-                                                                        <input name="produk[<?= $no; ?>]" type="text" id="idProduk<?= $no; ?>" class="form-control" readonly value="<?= $prod->product; ?>">
+                                                                        <input name="qty[]" type="text" id="idQty<?= $no; ?>" class="form-control" onkeypress="return hanyaAngka(event)" autocomplete="off" required value="<?= (int)$prod->decQty; ?>" readonly>
                                                                     </td>
                                                                     <td>
-                                                                        <input name="qty[<?= $no; ?>]" type="text" id="idQty<?= $no; ?>" class="form-control" onkeypress="return hanyaAngka(event)" autocomplete="off" required value="<?= $prod->decQty; ?>">
-                                                                    </td>
-                                                                    <td>
-                                                                        <input name="satuan[<?= $no; ?>]" type="text" id="idSatuan<?= $no; ?>" class="form-control" readonly value="<?= $prod->szUomId; ?>">
-                                                                    </td>
-                                                                    <td>
-                                                                        <?php
-                                                                        if ($no == '0') {
-                                                                        ?>
-                                                                            <a class="btn btn-danger" style="color: white;" disabled>-</a>
-                                                                        <?php
-                                                                        } else {
-                                                                        ?>
-                                                                            <a class="btn btn-danger" onclick="deleteRow(<?= $no; ?>)" style="color: white;">-</a>
-                                                                        <?php
-                                                                        }
-                                                                        ?>
+                                                                        <input name="satuan[]" type="text" id="idSatuan<?= $no; ?>" class="form-control" readonly required value="<?= $prod->szUomId; ?>">
                                                                     </td>
                                                                 </tr>
                                                             <?php
                                                                 $no++;
+                                                                $num++;
                                                             }
                                                             ?>
                                                         </tbody>
                                                     </table>
-
                                                 </div>
 
-                                                <div class="col-md-12 col-12">
+                                                <!-- <div class="col-md-12 col-12">
                                                     <div class="row">
                                                         <div class="col-sm-12 col-xl-9 m-b-30"></div>
                                                         <div class="col-sm-12 col-xl-4 m-b-30">
@@ -332,11 +272,11 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div> -->
 
                                                 <div class="col-12 d-flex justify-content-end">
                                                     <button type="submit" class="btn btn-primary me-1 mb-1">Submit</button>
-                                                    <a href="<?php echo base_url('inventDepot/historyBtb') ?>">
+                                                    <a href="<?php echo base_url('inventDist/historyBkb') ?>">
                                                         <button type="button" class="btn btn-white me-1 mb-1">Cancel</button>
                                                     </a>
                                                 </div>
@@ -366,132 +306,41 @@
 
     <script type="text/javascript" src="<?php echo base_url(); ?>assets/jquery-3.3.1.js"></script>
     <script>
-        function getFormDepoAsal() {
-            var id = document.getElementById('idAsal').value;
-
-            $.ajax({
-                url: "<?= base_url('inventDepot/getBranchName') ?>",
-                method: "POST",
-                data: {
-                    id: id
-                },
-                async: true,
-                dataType: "JSON",
-                success: function(data) {
-                    for (var row of data) {
-                        document.getElementById('namaAsal').value = row.szName;
-                    }
-                }
-            })
-
-            $.ajax({
-                url: "<?= base_url('inventDepot/getVehicle') ?>",
-                method: "POST",
-                data: {
-                    id: id
-                },
-                async: true,
-                dataType: "JSON",
-                success: function(data) {
-                    console.log(data)
-                    var content = document.getElementById("idKendaraan");
-                    content.innerHTML = "";
-
-                    var template = (row) => `  
-                        <option value=""><option>
-                        <option value="${row.szId}">${row.szId}</option>
-                    `
-
-                    for (var row of data) {
-                        var element = template(row);
-                        content.insertAdjacentHTML('beforeend', element);
-
-                        document.getElementById('kendaraanNama').value = '';
-                    }
-                }
-            });
-
-            $.ajax({
-                url: "<?= base_url('inventDepot/getEmployee') ?>",
-                method: "POST",
-                data: {
-                    id: id
-                },
-                async: true,
-                dataType: "JSON",
-                success: function(data) {
-                    console.log(data)
-                    var content = document.getElementById("idPengemudi");
-                    content.innerHTML = "";
-
-                    var template = (row) => ` 
-                        <option value=""><option> 
-                        <option value="${row.szId}">${row.szId}</option>
-                    `
-
-                    for (var row of data) {
-                        var element = template(row);
-                        content.insertAdjacentHTML('beforeend', element);
-
-                        document.getElementById('pengemudiNama').value = '';
-                    }
-                }
-            });
+        for (i = 0; i < <?= $no; ?>; i++) {
+            $("#notif" + i).hide();
         }
 
-        function getFormPengemudi() {
-            var pengemudi = document.getElementById('idPengemudi').value;
+        function getInfo(x) {
+            var qty = parseInt(document.getElementById('idQty' + x).value);
+            var onHand = parseInt(document.getElementById('idOnHand' + x).value);
 
-            $.ajax({
-                url: "<?= base_url('inventDepot/getEmployeeName') ?>",
-                method: "POST",
-                data: {
-                    pengemudi: pengemudi
-                },
-                async: true,
-                dataType: "JSON",
-                success: function(data) {
-                    for (var row of data) {
-                        document.getElementById('pengemudiNama').value = row.szName;
-                    }
-                }
-            })
-        }
-
-        function getFormKendaraan() {
-            var kendaraan = document.getElementById('idKendaraan').value;
-
-            $.ajax({
-                url: "<?= base_url('inventDepot/getVehicleName') ?>",
-                method: "POST",
-                data: {
-                    kendaraan: kendaraan
-                },
-                async: true,
-                dataType: "JSON",
-                success: function(data) {
-                    for (var row of data) {
-                        document.getElementById('kendaraanNama').value = row.szPoliceNo;
-                    }
-                }
-            })
+            if (onHand < qty) {
+                alert('Stok Tidak Ada');
+                $("#notif" + x).show();
+            } else {
+                $("#notif" + x).hide();
+            }
         }
 
         function getFormProduk(x) {
-            var produk = document.getElementById('idKode' + x).value;
+            var produk = document.getElementById('idProduk' + x).value;
+            var stok = document.getElementById('idStok').value;
+            var gudang = document.getElementById('idGudang').value;
 
             $.ajax({
-                url: "<?= base_url('inventDepot/getProductDetail') ?>",
+                url: "<?= base_url('inventDist/getProduk') ?>",
                 method: "POST",
                 data: {
-                    produk: produk
+                    produk: produk,
+                    stok: stok,
+                    gudang: gudang
                 },
                 async: true,
                 dataType: "JSON",
                 success: function(data) {
                     for (var row of data) {
-                        document.getElementById('idProduk' + x).value = row.szName;
                         document.getElementById('idSatuan' + x).value = row.szUomId;
+                        document.getElementById('idOnHand' + x).value = row.decQtyOnHand;
                     }
                 }
             })
@@ -508,24 +357,23 @@
             var newrow = $(".view-this");
             var cols = "";
             cols += '<tr id="baris' + count + '">';
-            cols += '<td>' + (count + 1) + '</td>';
+            cols += '<td>' + (count + 1) + '<input name="num[' + count + ']" type="hidden" value="' + count + '"></td>';
             cols += '<td>';
-            cols += '<select class="js-example-basic-single form-select" name="kode[' + count + ']" id="idKode' + count + '" required onchange="getFormProduk(' + count + ')">';
+            cols += '<select class="js-example-basic-single form-select" name="produk[]" id="idProduk' + count + '" required onchange="getFormProduk(' + count + ')">';
             cols += '<option value="-" disabled>Pilih Produk</option>';
-            cols += '<option value=""></option>';
-            cols += '<?php foreach ($product as $value) { ?>';
-            cols += '<option value="<?= $value->szId; ?>"><?= $value->szId; ?></option>';
+            cols += '<option value="-"></option>';
+            cols += '<?php foreach ($produk as $value) { ?>';
+            cols += '<option value="<?= $value->szId; ?>"><?= $value->szId; ?> - <?= $value->szName; ?></option>';
             cols += '<?php } ?>';
             cols += '</select>';
             cols += '</td>';
             cols += '<td>';
-            cols += '<input name="produk[' + count + ']" type="text" id="idProduk' + count + '" class="form-control" readonly>';
+            cols += '<input name="qty[]" type="text" id="idQty' + count + '" class="form-control" onkeypress="return hanyaAngka(event)" autocomplete="off" required onchange="getInfo(' + count + ')">';
+            cols += '<input name="onHand[' + count + ']" type="hidden" id="idOnHand' + count + '" class="form-control" onkeypress="return hanyaAngka(event)" autocomplete="off">';
+            cols += '<label id="notif' + count + '" style="color: red;">*Qty Lebih Besar dari Stok</label>';
             cols += '</td>';
             cols += '<td>';
-            cols += '<input name="qty[' + count + ']" type="text" id="idQty' + count + '" class="form-control" onkeypress="return hanyaAngka(event)" autocomplete="off" required>';
-            cols += '</td>';
-            cols += '<td>';
-            cols += '<input name="satuan[' + count + ']" type="text" id="idSatuan' + count + '" class="form-control" readonly>';
+            cols += '<input name="satuan[]" type="text" id="idSatuan' + count + '" class="form-control" readonly>';
             cols += '</td>';
             cols += '<td>';
             cols += '<a class="btn btn-danger" onclick="deleteRow(' + count + ')" style="color: white;">-</a>';
@@ -534,6 +382,7 @@
             newrow.append(cols);
             $("row").append(newrow);
             $(".js-example-basic-single").select2();
+            $("#notif" + count).hide();
             num++;
             counter++;
             document.getElementById("counter").value = count;
@@ -553,6 +402,14 @@
                 return false;
             return true;
         }
+
+        $('#formId').on('keyup keypress', function(e) {
+            var keyCode = e.keyCode || e.which;
+            if (keyCode === 13) {
+                e.preventDefault();
+                return false;
+            }
+        });
     </script>
 
     <script src="<?php echo base_url(); ?>assets/index/js/feather-icons/feather.min.js"></script>
@@ -569,6 +426,24 @@
         $(document).ready(function() {
             $('.js-example-basic-single').select2({
                 placeholder: "Pilih"
+            });
+
+            $(".js-example-basic-single").prop("disabled", true);
+        });
+    </script>
+
+    <!-- <script src="https://code.jquery.com/jquery-1.12.4.js"></script> -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function() {
+            var $dp1 = $("#idTgl");
+            $dp1.datepicker({
+                changeYear: true,
+                changeMonth: true,
+                minDate: 0,
+                maxDate: 0,
+                dateFormat: "yy-mm-dd",
+                yearRange: "-100:+20",
             });
         });
     </script>
